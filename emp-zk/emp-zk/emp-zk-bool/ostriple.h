@@ -40,7 +40,8 @@ public:
 		this->ferret_state = state;
 		// initiate Iterative COT with regular noise and security against malicious adv
 		if(ferret_state == nullptr)
-			ferret = new FerretCOT<IO>(3-party, threads, ios, true);
+			// ferret = new FerretCOT<IO>(3-party, threads, ios, true);
+			ferret = new FerretCOT<IO>(3-party, threads, ios, true, true, PrimalLPNParameter(1024*2048, 2048, 65536, 10, 86272, 337, 16384, 8));
 		else {
 			ferret = new FerretCOT<IO>(3-party, threads, ios, true, false);
 			ferret->disassemble_state(ferret_state, 10400000);
