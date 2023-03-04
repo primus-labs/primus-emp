@@ -58,7 +58,7 @@ static inline void AES_opt_key_schedule(block* user_key, AES_KEY *keys) {
 /*
  * With numKeys keys, use each key to encrypt numEncs blocks.
  */
-#ifdef __x86_64__
+#if (__x86_64__ || __EMSCRIPTEN__)
 template<int numKeys, int numEncs>
 static inline void ParaEnc(block *blks, AES_KEY *keys) {
 	block * first = blks;
@@ -112,6 +112,8 @@ static inline void ParaEnc(block *_blks, AES_KEY *keys) {
 			*blks = vaeseq_u8(*blks, K) ^ K2;
 	}
 }
+#else
+#error "not supported!"
 #endif
 
 }

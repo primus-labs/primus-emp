@@ -13,6 +13,10 @@ inline __m128i _mm_aesdeclast_si128 (__m128i a, __m128i RoundKey)
 {
     return vreinterpretq_m128i_u8(vaesdq_u8(vreinterpretq_u8_m128i(a), vdupq_n_u8(0)) ^ vreinterpretq_u8_m128i(RoundKey));
 }
+#elif __EMSCRIPTEN__
+#include "__ssewasm.h"
+#else
+#error "not supported!"
 #endif
 
 #include <assert.h>
@@ -28,8 +32,12 @@ inline bool getLSB(const block & x) {
 	return (x[0] & 1) == 1;
 }
 
+#if (__x86_64__||__EMSCRIPTEN__)
 #ifdef __x86_64__
 __attribute__((target("sse2")))
+#elif __EMSCRIPTEN__
+__attribute__((target("simd128")))
+#endif
 inline block makeBlock(uint64_t high, uint64_t low) {
 	return _mm_set_epi64x(high, low);
 }
@@ -37,6 +45,8 @@ inline block makeBlock(uint64_t high, uint64_t low) {
 inline block makeBlock(uint64_t high, uint64_t low) {
 	return (block)vcombine_u64((uint64x1_t)low, (uint64x1_t)high);
 }
+#else
+#error "not supported!"
 #endif
 
 

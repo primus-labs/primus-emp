@@ -40,6 +40,9 @@ emp-tool/circuits/float32_exp2.cpp
 emp-tool/circuits/float32_exp.cpp
 emp-tool/circuits/float32_ln.cpp
 emp-tool/circuits/float32_log2.cpp
+
+emp-tool/utils/__aesenc.cpp
+emp-tool/utils/__clmul.cpp
 )
 
 IF(${CRYPTO_IN_CIRCUIT})
@@ -55,8 +58,18 @@ ENDIF(${CRYPTO_IN_CIRCUIT})
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
+IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "(aarch64)|(arm64)|(x86_64)")
+  message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+ELSE()
+  set(NO_WARN_FLAGS "-Wno-unused-function -Wno-unused-command-line-argument")
+  set(CCFLAGS "-msimd128 -msse -msse2 -msse4.1 -msse4.2 -s ASSERTIONS=1")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
+ENDIF()
+
 
 add_library(${NAME} SHARED ${sources})
+target_link_libraries(${NAME} ${OPENSSL_LIBRARIES})
 
 install(DIRECTORY emp-tool DESTINATION include/)
 install(DIRECTORY cmake/ DESTINATION cmake/)

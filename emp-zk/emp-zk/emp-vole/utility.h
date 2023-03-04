@@ -162,7 +162,12 @@ inline block add_mod(block a, block b) {
 }
 
 inline block add_mod(block a, uint64_t b) {
+#if __EMSCRIPTEN__
+	// todo: valid check
+	block res = _mm_add_epi64(a, _mm_set_epi64x(b, b));
+#else
 	block res = _mm_add_epi64(a, _mm_set_epi64((__m64)b, (__m64)b));
+#endif
 	return vec_partial_mod(res);
 }
 
