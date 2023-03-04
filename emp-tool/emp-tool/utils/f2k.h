@@ -4,8 +4,12 @@
 
 namespace emp {
 	/* multiplication in galois field without reduction */
-	#ifdef __x86_64__
+	#if (__x86_64__ || __EMSCRIPTEN__)
+	#if __x86_64__
 	__attribute__((target("sse2,pclmul")))
+	#elif __EMSCRIPTEN__
+	__attribute__((target("simd128")))
+	#endif
 	inline void mul128(__m128i a, __m128i b, __m128i *res1, __m128i *res2) {
 		__m128i tmp3, tmp4, tmp5, tmp6;
 		tmp3 = _mm_clmulepi64_si128(a, b, 0x00);
@@ -43,11 +47,15 @@ namespace emp {
 		*res1 = tmp3;
 		*res2 = tmp6;
 	}
+	#else
+	#error "not supported!"
 	#endif
 
 	/* multiplication in galois field with reduction */
-	#ifdef __x86_64__
+	#if __x86_64__
 	__attribute__((target("sse2,pclmul")))
+	#elif __EMSCRIPTEN__
+	__attribute__((target("simd128")))
 	#endif
 	//https://www.intel.com/content/dam/develop/public/us/en/documents/carry-less-multiplication-instruction.pdf figure 5
 	inline void gfmul (__m128i a, __m128i b, __m128i *res) {

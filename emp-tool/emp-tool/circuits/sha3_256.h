@@ -29,7 +29,11 @@ namespace emp {
 template<typename T>
 int sha3_256(uint8_t * output, const T * input, const size_t length = 1) {
 	EVP_MD_CTX * mdctx;
+#ifdef __EMSCRIPTEN__
+	const EVP_MD * algo = EVP_sha256();
+#else
 	const EVP_MD * algo = EVP_sha3_256();
+#endif
 
 	if ((mdctx = EVP_MD_CTX_create()) == NULL) {
 		std::cerr << "Error in EVP_MD_CTX_create()\n" << std::flush;

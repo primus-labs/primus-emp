@@ -54,6 +54,12 @@
 
 #include "emp-tool/utils/block.h"
 
+#include <iostream>
+using namespace std;
+
+#define USE_OPENSSL_AESECBENCRYPT 1
+void _AES_ecb_encrypt_blks(unsigned char *blks, unsigned int nblks, const unsigned char *key);
+
 namespace emp {
 
 typedef struct { block rd_key[11]; unsigned int rounds; } AES_KEY;
@@ -69,11 +75,21 @@ typedef struct { block rd_key[11]; unsigned int rounds; } AES_KEY;
     v2 = _mm_shuffle_epi32(v2,shuff_const);                                 \
     v1 = _mm_xor_si128(v1,v2)
 
-inline void
+
+#if __EMSCRIPTEN__
+__attribute__((target("simd128")))
+inline void AES_set_encrypt_key(const block userkey, AES_KEY *key) {
+    block *rk = key->rd_key;
+    int nr = 10;
+    int nk = 128/32;
+    _mm_aeskeygenassist(userkey,rk,nr,nk);
+    key->rounds = 10;
+}
+#else
 #ifdef __x86_64__
 __attribute__((target("aes,sse2")))
 #endif
-AES_set_encrypt_key(const block userkey, AES_KEY *key) {
+inline void AES_set_encrypt_key(const block userkey, AES_KEY *key) {
     block x0, x1, x2;
     block *kp = key->rd_key;
     kp[0] = x0 = userkey;
@@ -100,6 +116,7 @@ AES_set_encrypt_key(const block userkey, AES_KEY *key) {
     kp[10] = x0;
     key->rounds = 10;
 }
+#endif
 
 #ifdef __x86_64__
 __attribute__((target("aes,sse2")))
@@ -127,6 +144,21 @@ inline void AES_ecb_encrypt_blks(block *_blks, unsigned int nblks, const AES_KEY
 	for (unsigned int i = 0; i < nblks; ++i, ++first)
 		 *first = vaeseq_u8(*first, last_key) ^ (uint8x16_t)keys[key->rounds];
 }
+#elif __EMSCRIPTEN__
+__attribute__((target("simd128")))
+inline void AES_ecb_encrypt_blks(block *blks, unsigned int nblks, const AES_KEY *key) {
+#if USE_OPENSSL_AESECBENCRYPT
+    _AES_ecb_encrypt_blks((unsigned char*)blks, nblks, (const unsigned char*)key);
+#else // same as __x86_64__
+   for (unsigned int i = 0; i < nblks; ++i)
+      blks[i] = _mm_xor_si128(blks[i], key->rd_key[0]);
+   for (unsigned int j = 1; j < key->rounds; ++j)
+      for (unsigned int i = 0; i < nblks; ++i)
+         blks[i] = _mm_aesenc_si128(blks[i], key->rd_key[j]);
+   for (unsigned int i = 0; i < nblks; ++i)
+      blks[i] = _mm_aesenclast_si128(blks[i], key->rd_key[key->rounds]);
+#endif
+}
 #endif
 
 #ifdef __GNUC__
@@ -148,6 +180,8 @@ inline void AES_ecb_encrypt_blks(block *blks, const AES_KEY *key) {
 inline void
 #ifdef __x86_64__
 __attribute__((target("aes,sse2")))
+#elif __EMSCRIPTEN__
+__attribute__((target("simd128")))
 #endif
 AES_set_decrypt_key_fast(AES_KEY *dkey, const AES_KEY *ekey) {
     int j = 0;
@@ -164,6 +198,8 @@ AES_set_decrypt_key_fast(AES_KEY *dkey, const AES_KEY *ekey) {
 inline void
 #ifdef __x86_64__
 __attribute__((target("aes,sse2")))
+#elif __EMSCRIPTEN__
+__attribute__((target("simd128")))
 #endif
 AES_set_decrypt_key(block userkey, AES_KEY *key) {
     AES_KEY temp_key;
@@ -174,6 +210,8 @@ AES_set_decrypt_key(block userkey, AES_KEY *key) {
 inline void
 #ifdef __x86_64__
 __attribute__((target("aes,sse2")))
+#elif __EMSCRIPTEN__
+__attribute__((target("simd128")))
 #endif
 AES_ecb_decrypt_blks(block *blks, unsigned nblks, const AES_KEY *key) {
     unsigned i, j, rnds = key->rounds;

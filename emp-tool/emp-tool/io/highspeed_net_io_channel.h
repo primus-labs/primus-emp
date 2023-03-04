@@ -166,7 +166,7 @@ class HighSpeedNetIO : public IOChannel<HighSpeedNetIO> { public:
 		mysocket = socket(AF_INET, SOCK_STREAM, 0);
 		int reuse = 1;
 		setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&reuse, sizeof(reuse));
-		if (bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
+		if (::bind(mysocket, (struct sockaddr *)&serv, sizeof(struct sockaddr)) < 0) {
 			perror("error: bind");
 			exit(1);
 		}
