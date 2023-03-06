@@ -1,0 +1,4 @@
+[submodule "deps/openssl-1.1.1"]
+	path = deps/openssl-1.1.1
+	url = git@github.com:pado-labs/openssl.git
+	branch = ossl
