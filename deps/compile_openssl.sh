@@ -2,10 +2,21 @@
 curdir=$(pwd)
 installdir=${curdir}/install
 
+# openssl version
+ov=3.0.8  # use todo(https://www.openssl.org/source/openssl-3.0.8.tar.gz)
+ov=1.1.1t # use ./openssl-1.1.1t.tar.gz(https://www.openssl.org/source/openssl-1.1.1t.tar.gz)
+ov=1.1.1  # use git@github.com:pado-labs/openssl.git -b ossl
+echo "use openssl: ${ov}"
+
 # uncompress opnessl
-ossldir=${curdir}/openssl-1.1.1t
+ossldir=${curdir}/openssl-${ov}
 if [ ! -d "${ossldir}" ]; then
-  tar -zxf openssl-1.1.1t.tar.gz
+  if [ -f "openssl-${ov}.tar.gz" ]; then
+    tar -zxf openssl-${ov}.tar.gz
+  else
+    echo "can not found openssl-${ov}"
+    exit 1
+  fi
 fi
 
 # compile openssl

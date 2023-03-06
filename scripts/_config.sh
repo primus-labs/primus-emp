@@ -2,7 +2,8 @@
 target=${1:-"local"} # local, wasm
 
 curdir=$(pwd)
-echo "===== compile target: ${target} ====="
+uname_s=$(uname -s)
+echo "===== compile target: ${target}, on ${uname_s} ====="
 #######################################################################
 #######################################################################
 builddir=${curdir}/build
