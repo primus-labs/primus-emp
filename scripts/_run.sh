@@ -29,50 +29,26 @@ projs=(
   # garble # todo
 )
 
+echo "" >${logfile}
 if [ "${target}" = "wasm" ]; then
   cp -f ${scripts_dir}/entry.js ${bindir}/
-
-  echo "" >${logfile}
   for proj in ${projs[@]}; do
     cd ${bindir}/
     if [ -f "test_${proj}.wasm" ]; then
       echo "run ${proj}"
       echo -e "\nrun ${proj}" >>${logfile}
 
-      begtime=$(date "+%Y-%m-%d %H:%M:%S.%N")
-      echo "begtime:" $begtime >>${logfile}
-
-      node entry.js $proj >>${logfile}
-
-      endtime=$(date "+%Y-%m-%d %H:%M:%S.%N")
-      echo "endtime:" $endtime >>${logfile}
-
-      end_t=$(date --date "${endtime}" +%s.%N)
-      beg_t=$(date --date "${begtime}" +%s.%N)
-      delta=$(echo $end_t - $beg_t | bc)
-      echo "elapsed(s): $delta" >>${logfile}
+      (time node entry.js $proj) >>${logfile} 2>&1
     fi
   done
 else
-  echo "" >${logfile}
   for proj in ${projs[@]}; do
     cd ${bindir}/
     if [ -f "test_${proj}" ]; then
       echo "run ${proj}"
       echo -e "\nrun ${proj}" >>${logfile}
 
-      begtime=$(date "+%Y-%m-%d %H:%M:%S.%N")
-      echo "begtime:" $begtime >>${logfile}
-
-      ./test_${proj} >>${logfile}
-
-      endtime=$(date "+%Y-%m-%d %H:%M:%S.%N")
-      echo "endtime:" $endtime >>${logfile}
-
-      end_t=$(date --date "${endtime}" +%s.%N)
-      beg_t=$(date --date "${begtime}" +%s.%N)
-      delta=$(echo $end_t - $beg_t | bc)
-      echo "elapsed(s): $delta" >>${logfile}
+      (time ./test_${proj}) >>${logfile} 2>&1
     fi
   done
 fi
