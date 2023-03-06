@@ -23,6 +23,8 @@ Current repo initialization date: 03/03/2023.
 - node: 16.16.0
 - cmake: 3.22.1
 
+More ref [How to install emcc and node](./docs/INSTALL.md).
+
 
 ## Compile and Run EMP*
 
