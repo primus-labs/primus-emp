@@ -15,11 +15,44 @@ Current repo initialization date: 03/03/2023.
 | emp-zk   | [emp-toolkit/emp-zk](https://github.com/emp-toolkit/emp-zk)     | d16142e   | Feb 22 21:24:57 2023 |
 
 
-## Compile EMP*
+## Dependenices
+
+- OS: ubuntu 22.04
+- emcc: 3.1.31
+- node: 16.16.0
+- cmake: 3.22.1
+
+
+## Compile and Run EMP*
+
+- Compile
 
 ```sh
-bash ./compile.sh
+bash ./scripts/compile.sh
 ```
 
-By default, the `cmakes`, `includes`, `libs` will output to `./build`.
+- Run
+
+```sh
+bash ./scripts/run.sh
+```
+
+By default, the `cmakes`, `includes`, `libs`, `logs` will output to `./build`.
+
+
+## Compile and Run EMP* (WebAssembly)
+
+- Compile
+
+```sh
+bash ./scripts/compile_wasm.sh
+```
+
+- Run
+
+```sh
+bash ./scripts/run_wasm.sh
+```
+
+By default, the `cmakes`, `includes`, `libs`, `logs` will output to `./build_wasm`.
 
