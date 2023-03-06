@@ -36,6 +36,25 @@ cd emsdk
 ./emsdk activate 3.1.31
 ```
 
+<br/>
+
+Q1:
+
+If you encounter the following problem when executing the `./emsdk install ...` command:
+
+```log
+Warning: Possibly SSL/TLS issue. Update or install Python SSL root certificates (2048-bit or greater) supplied in Python folder or https://pypi.org/project/certifi/ and try again.
+```
+
+A1:
+
+It looks like there is something wrong with the python environment. Please add the following two lines to the head of `emsdk.py`:
+
+```
+import ssl
+ssl._create_default_https_context = ssl._create_unverified_context
+```
+
 
 ### Install node
 
