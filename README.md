@@ -17,7 +17,8 @@ Current repo initialization date: 03/03/2023.
 
 ## Dependenices
 
-- OS: ubuntu 22.04
+- CPU: Intel
+- OS: ubuntu 22.04; MacOS 12.6.3
 - emcc: 3.1.31
 - node: 16.16.0
 - cmake: 3.22.1

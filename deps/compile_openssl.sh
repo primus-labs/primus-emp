@@ -1,6 +1,7 @@
 #!/bin/bash
 curdir=$(pwd)
 installdir=${curdir}/install
+uname_s=$(uname -s)
 
 # openssl version
 ov=3.0.8  # use todo(https://www.openssl.org/source/openssl-3.0.8.tar.gz)
@@ -24,8 +25,15 @@ if [ ! -f "${installdir}/lib/libssl.a" ]; then
   cd ${ossldir}
   export CFLAGS="-O3 -msse -msse2 -msse3 -mavx -msimd128"
   emconfigure ./config -no-asm -no-shared --prefix=${installdir}
-  # set CROSS_COMPILE=
-  sed -i 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
+  if [ "${uname_s}" = "Darwin" ]; then
+    # set CNF_CFLAGS=-pthread
+    sed -i "" 's/CNF_CFLAGS=.*/CNF_CFLAGS=-pthread/' Makefile
+    # set CROSS_COMPILE=
+    sed -i "" 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
+  else
+    # set CROSS_COMPILE=
+    sed -i 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
+  fi
   emmake make -j8 build_generated libssl.a libcrypto.a
   make install_dev
   cd ${curdir}
