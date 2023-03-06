@@ -1,24 +1,10 @@
 #!/bin/bash
-curdir=$(pwd)
-builddir=${curdir}/build
-bindir=${builddir}/bin
-installdir=${curdir}/install
-build_type=Debug
-build_type=Release
-
-#
-#
-# repos
-repos=(
-  emp-tool
-  emp-ot
-  emp-zk
-)
+. ./scripts/_config.sh local
 
 #
 #
 # ######################
-for repo in ${repos[@]}; do
+for repo in ${emp_repos[@]}; do
   echo "compile ${repo}"
   cd ${curdir}
   if [ -d ${repo} ]; then
@@ -34,4 +20,5 @@ for repo in ${repos[@]}; do
   fi
 done
 
+cd ${curdir}
 exit 0
