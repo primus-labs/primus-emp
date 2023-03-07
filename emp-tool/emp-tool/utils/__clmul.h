@@ -150,7 +150,7 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
   {
     // dst[127] = 0;
     uint8_t d = dst[127 / 8]; // dst[127];
-    d = (d & 0xef);           // why?
+    // d = (d & 0xfe);           // why?
     dst[127 / 8] = d;
   }
 
@@ -167,12 +167,12 @@ static void _my_mm_clmulepi64_si128(uint8_t *c, uint8_t *a, uint8_t *b, int imm8
     temp2 = b;
     break;
   case 0x01:
-    temp1 = a;
-    temp2 = b + 8;
-    break;
-  case 0x10:
     temp1 = a + 8;
     temp2 = b;
+    break;
+  case 0x10:
+    temp1 = a;
+    temp2 = b + 8;
     break;
   case 0x11:
     temp1 = a + 8;
