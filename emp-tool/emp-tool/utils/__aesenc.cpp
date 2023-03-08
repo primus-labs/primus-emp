@@ -22,6 +22,10 @@ __attribute__((target("simd128")))
 void
 _AES_ecb_encrypt_blks(unsigned char *_blks, unsigned int nblks, const unsigned char *_key)
 {
+    // todo: check the caller where nblks is 0
+    if (nblks == 0)
+        return;
+
     block *blks = (block *)_blks;
     EMP_AES_KEY *key = (EMP_AES_KEY *)_key;
     {
@@ -32,7 +36,7 @@ _AES_ecb_encrypt_blks(unsigned char *_blks, unsigned int nblks, const unsigned c
         // todo: optimized
         unsigned char *pekey = (unsigned char *)key->rd_key;
         unsigned char *pokey = (unsigned char *)aeskey.rd_key;
-        for (int i = 0; i < 176 / 4; i++)
+        for (int i = 0; i < 44; i++) // 44=176/4=11*4
         {
             for (int j = 0; j < 4; j++)
             {

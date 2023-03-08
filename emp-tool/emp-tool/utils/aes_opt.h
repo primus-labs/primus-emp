@@ -116,5 +116,24 @@ static inline void ParaEnc(block *_blks, AES_KEY *keys) {
 #error "not supported!"
 #endif
 
+#if __EMSCRIPTEN__
+template<>
+inline void ParaEnc<1,1>(block *blks, AES_KEY *keys) {
+	block *pblks = blks;
+	AES_KEY *pkeys = keys;
+	// printf("<1,1>\n");
+	AES_ecb_encrypt_blks(pblks, 1, pkeys);
+}
+template<>
+inline void ParaEnc<1,2>(block *blks, AES_KEY *keys) {
+	block *pblks = blks;
+	AES_KEY *pkeys = keys;
+	// printf("<1,2>\n");
+	AES_ecb_encrypt_blks(pblks, 1, pkeys);
+	pblks++;
+	AES_ecb_encrypt_blks(pblks, 1, pkeys);
+}
+#endif
+
 }
 #endif
