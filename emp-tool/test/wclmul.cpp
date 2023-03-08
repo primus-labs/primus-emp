@@ -10,24 +10,29 @@ int main()
 #endif
 
 	{
-		// test _mm_clmulepi64_si128
-		block a = makeBlock(0x0f0e0d0c0b0a0908, 0x0706050403020100);
-		block b = makeBlock(0xffeeddccbbaa9988, 0x7766554433221100);
-		block c;
+		cout << "correct check:" << endl;
 
-		uint64_t *pc = (uint64_t *)&c;
-#if (__x86_64__ || __EMSCRIPTEN__)
-		cout << std::hex;
-		c = _mm_clmulepi64_si128(a, b, 0x00);
-		cout << "0x00 => " << std::setw(16) << std::setfill('0') << pc[1] << " " << pc[0] << endl;
-		c = _mm_clmulepi64_si128(a, b, 0x01);
-		cout << "0x01 => " << std::setw(16) << std::setfill('0') << pc[1] << " " << pc[0] << endl;
-		c = _mm_clmulepi64_si128(a, b, 0x10);
-		cout << "0x10 => " << std::setw(16) << std::setfill('0') << pc[1] << " " << pc[0] << endl;
-		c = _mm_clmulepi64_si128(a, b, 0x11);
-		cout << "0x11 => " << std::setw(16) << std::setfill('0') << pc[1] << " " << pc[0] << endl;
-		cout << std::dec;
-#endif
+		PRG prg;
+		prg.reseed(&zero_block);
+
+		for (int i = 0; i < 8; i++)
+		{
+			block blks[2];
+			prg.random_block(blks, 2);
+			block a = blks[0];
+			block b = blks[1];
+			block c[4];
+			c[0] = _mm_clmulepi64_si128(a, b, 0x00);
+			c[1] = _mm_clmulepi64_si128(a, b, 0x01);
+			c[2] = _mm_clmulepi64_si128(a, b, 0x10);
+			c[3] = _mm_clmulepi64_si128(a, b, 0x11);
+
+			cout << i << " 0x00 => " << c[0] << endl;
+			cout << i << " 0x01 => " << c[1] << endl;
+			cout << i << " 0x10 => " << c[2] << endl;
+			cout << i << " 0x11 => " << c[3] << endl;
+			cout << endl;
+		}
 	}
 
 	return 0;
