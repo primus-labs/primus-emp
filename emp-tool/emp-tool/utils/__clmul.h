@@ -58,17 +58,17 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
     // (c & 1101 1111) | ((a . b) & 0010 0000)
     // (c & mask_) | ((a OP b) & mask)
     uint8_t mask = 1;
-    mask <<= (i % 8);
+    mask <<= (i & 7);
     uint8_t mask_ = (~mask);
 
     // TEMP[i] = (TEMP1[0] & TEMP2[i]);
-    uint8_t c = TEMP[i / 8]; // TEMP[i]
-    uint8_t a = TEMP1[0];    // TEMP1[0]
+    uint8_t c = TEMP[i >> 3]; // TEMP[i]
+    uint8_t a = TEMP1[0];     // TEMP1[0]
     a >>= 0;
-    uint8_t b = TEMP2[i / 8]; // TEMP2[i]
-    b >>= (i % 8);
-    c = (c & mask_) | (((a & b) & 1) << (i % 8));
-    TEMP[i / 8] = c;
+    uint8_t b = TEMP2[i >> 3]; // TEMP2[i]
+    b >>= (i & 7);
+    c = (c & mask_) | (((a & b) & 1) << (i & 7));
+    TEMP[i >> 3] = c;
 
     for (int j = 1; j <= i; j++)
     {
@@ -76,24 +76,24 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
       // ==>
       // TEMPJ = TEMP1[j] & TEMP2[i - j];
       // TEMP[i] = TEMP[i] ^ TEMPJ;
-      uint8_t d = 0;            // TEMPJ
-      uint8_t a = TEMP1[j / 8]; // TEMP1[j]
-      a >>= (j % 8);
-      uint8_t b = TEMP2[(i - j) / 8]; // TEMP2[i - j]
-      b >>= ((i - j) % 8);
+      uint8_t d = 0;             // TEMPJ
+      uint8_t a = TEMP1[j >> 3]; // TEMP1[j]
+      a >>= (j & 7);
+      uint8_t b = TEMP2[(i - j) >> 3]; // TEMP2[i - j]
+      b >>= ((i - j) & 7);
       d = a & b & 1;
 
-      uint8_t c = TEMP[i / 8]; // TEMP[i]
-      uint8_t e = (c >> (i % 8));
-      c = (c & mask_) | (((e ^ d) & 1) << (i % 8));
-      TEMP[i / 8] = c;
+      uint8_t c = TEMP[i >> 3]; // TEMP[i]
+      uint8_t e = (c >> (i & 7));
+      c = (c & mask_) | (((e ^ d) & 1) << (i & 7));
+      TEMP[i >> 3] = c;
     }
     {
       // dst[i] = TEMP[i];
-      uint8_t d = dst[i / 8];  // dst[i];
-      uint8_t c = TEMP[i / 8]; // TEMP[i]
+      uint8_t d = dst[i >> 3];  // dst[i];
+      uint8_t c = TEMP[i >> 3]; // TEMP[i]
       d = (d & mask_) | (c & mask);
-      dst[i / 8] = d;
+      dst[i >> 3] = d;
     }
   }
 
@@ -111,13 +111,13 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
     // (c & 1101 1111) | ((a . b) & 0010 0000)
     // (c & mask_) | ((a OP b) & mask)
     uint8_t mask = 1;
-    mask <<= (i % 8);
+    mask <<= (i & 7);
     uint8_t mask_ = (~mask);
 
     // TEMP[i] = 0;
-    uint8_t c = TEMP[i / 8]; // TEMP[i]
+    uint8_t c = TEMP[i >> 3]; // TEMP[i]
     c = (c & mask_);
-    TEMP[i / 8] = c;
+    TEMP[i >> 3] = c;
 
     for (int j = (i - 63); j <= 63; j++)
     {
@@ -126,33 +126,36 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
       // ==>
       // TEMPJ = TEMP1[j] & TEMP2[i - j];
       // TEMP[i] = TEMP[i] ^ TEMPJ;
-      uint8_t d = 0;            // TEMPJ
-      uint8_t a = TEMP1[j / 8]; // TEMP1[j]
-      a >>= (j % 8);
-      uint8_t b = TEMP2[(i - j) / 8]; // TEMP2[i - j]
-      b >>= ((i - j) % 8);
+      uint8_t d = 0;             // TEMPJ
+      uint8_t a = TEMP1[j >> 3]; // TEMP1[j]
+      a >>= (j & 7);
+      uint8_t b = TEMP2[(i - j) >> 3]; // TEMP2[i - j]
+      b >>= ((i - j) & 7);
       d = a & b & 1;
 
-      uint8_t c = TEMP[i / 8]; // TEMP[i]
-      uint8_t e = (c >> (i % 8));
-      c = (c & mask_) | (((e ^ d) & 1) << (i % 8));
-      TEMP[i / 8] = c;
+      uint8_t c = TEMP[i >> 3]; // TEMP[i]
+      uint8_t e = (c >> (i & 7));
+      c = (c & mask_) | (((e ^ d) & 1) << (i & 7));
+      TEMP[i >> 3] = c;
     }
     {
       // (same as 1)
       // dst[i] = TEMP[i];
-      uint8_t d = dst[i / 8];  // dst[i];
-      uint8_t c = TEMP[i / 8]; // TEMP[i]
+      uint8_t d = dst[i >> 3];  // dst[i];
+      uint8_t c = TEMP[i >> 3]; // TEMP[i]
       d = (d & mask_) | (c & mask);
-      dst[i / 8] = d;
+      dst[i >> 3] = d;
     }
   }
+
+#if 0 // disable this, and works fine, why ??
   {
     // dst[127] = 0;
-    uint8_t d = dst[127 / 8]; // dst[127];
-    // d = (d & 0xfe);           // why?
-    dst[127 / 8] = d;
+    uint8_t d = dst[127>> 3]; // dst[127];
+    d = (d & 0xfe);          
+    dst[127>> 3] = d;
   }
+#endif
 
   return 0;
 }
@@ -192,7 +195,5 @@ static void _my_mm_clmulepi64_si128(uint8_t *c, uint8_t *a, uint8_t *b, int imm8
     _my_mm_clmulepi64_si128_helper(c, temp1, temp2);
   }
 }
-
-
 
 #endif
