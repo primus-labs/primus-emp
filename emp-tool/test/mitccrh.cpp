@@ -87,7 +87,7 @@ int main() {
 	}
 	cout << "correct" << endl;
 
-	cout << "Benchmark: ";
+	cout << "mitccrh Benchmark K2E2 : ";
 	gid = 0;
 	mitccrh.renew_ks(gid);
 	block hash[8];
@@ -123,7 +123,7 @@ int main() {
 	}
 	cout << "correct" << endl;
 
-	cout << "Benchmark: ";
+	cout << "mitccrh Benchmark K2E4 : ";
 	mitccrh1.renew_ks(0);
 	prg.random_block(hash, 4);
 	start = clock_start();
@@ -133,7 +133,7 @@ int main() {
 	cout << 1024*1024*10*4/(time_from(start))*1e6 << " blocks/second" << endl;
 
 	
-	cout << "Benchmark K8E8: ";
+	cout << "mitccrh Benchmark K8E8 : ";
 	gid = 0;
 	prg.random_block(hash, 8);
 	start = clock_start();
@@ -144,5 +144,7 @@ int main() {
 
 	cout << 1024*1024*10*8/(time_from(start))*1e6 << " blocks/second" << endl;
 
+
+	cout << "DONE\n";
 	return 0;
 }

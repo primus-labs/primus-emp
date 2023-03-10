@@ -52,5 +52,6 @@ int main() {
 
 	cout <<"all tests pass!\n";
 	
+	cout << "DONE\n";
 	return 0;
 }

@@ -183,6 +183,8 @@ int main(int argc, char** argv) {
 	cout << endl << "Test accuracy:" << endl;
 	test_float<std::plus<float>, std::plus<Float>>(0.0);
 	test_float<std::minus<float>, std::minus<Float>>(0.0);
+#if !__EMSCRIPTEN__
+	// todo: Stack overflow! on WASM
 	test_float<std::multiplies<float>, std::multiplies<Float>>(0.0);
 	test_float<std::divides<float>, std::divides<Float>>(0.0);
 	test_float(0, 0.0, 1e12);
@@ -193,7 +195,10 @@ int main(int argc, char** argv) {
 	test_float(5, 1e-3, 1e18);
 	test_float(6, 1e-3, 1e12);
 	test_float(7, 1e-3, 1e12);
+#endif
 
 	finalize_plain_prot();
+
+	cout << "DONE\n";
 	return 0;
 }

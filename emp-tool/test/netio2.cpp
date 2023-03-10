@@ -31,5 +31,8 @@ int main(int argc, char** argv) {
 	io->flush();
 	cout <<"done\n";
 	delete io;
+
+	cout << "DONE\n";
+	return 0;
 }
 

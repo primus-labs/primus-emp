@@ -26,5 +26,7 @@ int main() {
 		delete[] data;
 		cout << "Hash speed with block size "<<length<<" :\t"<<(length*times*128)/(interval+0.0)*1e6*1e-9<<" Gbps\n";
 	}
+
+	cout << "DONE\n";
 	return 0;
 }
