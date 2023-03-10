@@ -14,6 +14,7 @@
 
 # define AES_MAXNR 14
 # define AES_BLOCK_SIZE 16
+# define MY_USE_MEMCPY 0
 
 /* This should be a hidden type, but EVP requires that the size be known */
 struct my_aes_key_st {
@@ -540,27 +541,14 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     memcpy(out, state, 16);
 }
 
-static void _my_mm_aesenc_si128_o(const unsigned char *in, unsigned char *out,
-                   const u64 *key)
-{
-    // u64 state[2];
-    u64* state = (u64*)out;
-    
-    memcpy(state, in, 16);
-
-    SubLong(&state[0]);
-    SubLong(&state[1]);
-    ShiftRows(state);
-    MixColumns(state);
-    AddRoundKey(state, key);
-
-    // memcpy(out, state, 16);
-}
-
 static void _my_mm_aesenc_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 {
+#if MY_USE_MEMCPY
     u64 state[2];
+#else
+    u64* state = (u64*)out;
+#endif
     memcpy(state, in, 16);
 
     SubLong(&state[0]);
@@ -569,14 +557,19 @@ static void _my_mm_aesenc_si128(const unsigned char *in, unsigned char *out,
     MixColumns(state);
     AddRoundKey(state, key);
 
+#if MY_USE_MEMCPY
     memcpy(out, state, 16);
+#endif
 }
 
 static void _my_mm_aesenclast_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 {
+#if MY_USE_MEMCPY
     u64 state[2];
-
+#else
+    u64* state = (u64*)out;
+#endif
     memcpy(state, in, 16);
 
     SubLong(&state[0]);
@@ -584,7 +577,9 @@ static void _my_mm_aesenclast_si128(const unsigned char *in, unsigned char *out,
     ShiftRows(state);
     AddRoundKey(state, key);
 
+#if MY_USE_MEMCPY
     memcpy(out, state, 16);
+#endif
 }
 
 static void InvCipher(const unsigned char *in, unsigned char *out,
@@ -666,8 +661,11 @@ static void _my_mm_aesdec_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 
 {
+#if MY_USE_MEMCPY
     u64 state[2];
-
+#else
+    u64* state = (u64*)out;
+#endif
     memcpy(state, in, 16);
 
     // {
@@ -689,7 +687,10 @@ static void _my_mm_aesdec_si128(const unsigned char *in, unsigned char *out,
     InvMixColumns(state);
     AddRoundKey(state, key);
 
+
+#if MY_USE_MEMCPY
     memcpy(out, state, 16);
+#endif
     
     // {
     //   uint64_t *data = (uint64_t *)out;
@@ -703,8 +704,11 @@ static void _my_mm_aesdeclast_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 
 {
+#if MY_USE_MEMCPY
     u64 state[2];
-
+#else
+    u64* state = (u64*)out;
+#endif
     memcpy(state, in, 16);
 
     InvShiftRows(state);
@@ -712,7 +716,9 @@ static void _my_mm_aesdeclast_si128(const unsigned char *in, unsigned char *out,
     InvSubLong(&state[1]);
     AddRoundKey(state, key);
 
+#if MY_USE_MEMCPY
     memcpy(out, state, 16);
+#endif
 }
 
 static void RotWord(u32 *x)
