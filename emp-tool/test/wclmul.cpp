@@ -35,5 +35,6 @@ int main()
 		}
 	}
 
+	cout << "DONE\n";
 	return 0;
 }
