@@ -36,6 +36,7 @@ add_test_case(aes_opt)
 add_test_case(waesenc)
 add_test_case(wclmul)
 add_test_case(wnetio)
+add_test_case(wperf)
 
 IF(${CRYPTO_IN_CIRCUIT})
 add_test_case(sha3_256)

@@ -5,10 +5,9 @@ using namespace emp;
 
 int main()
 {
-	#if !(__x86_64__||__EMSCRIPTEN__)
-// have not test
-	#endif
-
+#if !(__x86_64__ || __EMSCRIPTEN__)
+	// have not test
+#endif
 
 	for (int t = 0; t < 100; ++t)
 	{
@@ -53,14 +52,23 @@ int main()
 	ParaEnc<2, 1>(msg2, KEY);
 	if (!cmpBlock(msg2, &res, 1) or !cmpBlock(msg2 + 1, &res, 1))
 	{
-		error("AES test vector fail1!\n");
+		error("ParaEnc<2, 1> AES test vector fail1!\n");
 	}
 
 	msg2[0] = msg2[1] = makeBlock(0xffeeddccbbaa9988, 0x7766554433221100);
 	ParaEnc<1, 2>(msg2, KEY);
 	if (!cmpBlock(msg2, &res, 1) or !cmpBlock(msg2 + 1, &res, 1))
 	{
-		error("AES test vector fail2!\n");
+		error("ParaEnc<1, 2> AES test vector fail2!\n");
+	}
+
+	{
+		msg2[0] = msg2[1] = makeBlock(0xffeeddccbbaa9988, 0x7766554433221100);
+		ParaEnc<1, 1>(msg2, KEY);
+		if (!cmpBlock(msg2, &res, 1))
+		{
+			error("ParaEnc<1, 1> AES test vector fail2!\n");
+		}
 	}
 
 	cout << "all tests pass!\n";
