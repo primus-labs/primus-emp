@@ -37,3 +37,4 @@ build/
 build_wasm/
 logs/
 temp/
+__pycache__/

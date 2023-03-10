@@ -5,24 +5,28 @@ bindir=${builddir}/emp-tool/bin
 logfile=${logs_dir}/output_${target}.log
 
 projs=(
+  # ### perf test cases
+  wperf
+  prg
+  hash
+  prp
+  mitccrh
+  halfgate
+  f2k
+
+  # ### other test cases
   waesenc
   wclmul
 
-  # prg
-  # hash
-  # prp
-  # bit
+  bit
   # ecc # some error mem oo
-  # int
-  # float
-  # gen_circuit
-  # mitccrh
-  # f2k
-  halfgate
-  # to_bool
+  # gen_circuit # file system
+  int
+  float
+  to_bool
   aes_opt
 
-  # ### io
+  # ### other test cases need network
   # wnetio # todo
   # netio # todo
   # netio2 # todo

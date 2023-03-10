@@ -33,15 +33,24 @@ for repo in ${emp_repos[@]}; do
     export EMCC_CFLAGS="-O3 -s WASM=1 -msimd128 -s LEGALIZE_JS_FFI=0 -sERROR_ON_UNDEFINED_SYMBOLS=0"
     export EMCC_CFLAGS="-O3 -s WASM=1 -msimd128"
 
-    EMCC_CFLAGS="-O3 -s WASM=1"
+    EMCC_CFLAGS="-O3 -sWASM=1 -sWASM_BIGINT"
+    EMCC_CFLAGS="-O3 -sWASM=1"
 
     # sse* simd
-    SIMD_CFLAGS=" -msimd128"
+    SIMD_CFLAGS=" -msimd128 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx"
     EMCC_CFLAGS+=${SIMD_CFLAGS}
 
     # WebSocket/POSIX Socket
     SOCKET_FLAGS=" -lwebsocket.js -sPROXY_POSIX_SOCKETS -sUSE_PTHREADS -sPROXY_TO_PTHREAD"
     # EMCC_CFLAGS+=${SOCKET_FLAGS}
+
+    # multi-thread
+    PARALLEL_CFLAGS=" -pthread -sPTHREAD_POOL_SIZE=4 -sPROXY_TO_PTHREAD=1 -sEXIT_RUNTIME=1"
+    # EMCC_CFLAGS+=${PARALLEL_CFLAGS}
+
+    # memory (do not use `ALLOW_MEMORY_GROWTH` with pthread)
+    MEM_CFLAGS=" -sALLOW_MEMORY_GROWTH"
+    # EMCC_CFLAGS+=${MEM_CFLAGS}
 
     export EMCC_CFLAGS=${EMCC_CFLAGS}
     echo "EMCC_CFLAGS: ${EMCC_CFLAGS}"
