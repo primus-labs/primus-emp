@@ -40,5 +40,6 @@ int main() {
 	res = (*a==b);
 	cout << res<<endl;
 	
+	cout << "DONE\n";
 	return 0;
 }

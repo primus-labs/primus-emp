@@ -125,5 +125,7 @@ int main(int argc, char** argv) {
 	setup_plain_prot(false, "");
 	hash_in_circuit();
 	finalize_plain_prot();
-	return 0;
+
+	cout << "DONE\n";
+  return 0;
 }

@@ -46,4 +46,7 @@ int main(int argc, char** argv) {
 	BristolFormat bf("sort.txt");
 	//BristolFormat bf(sort_num_gate, sort_num_wire, sort_n1, sort_n2, sort_n3, sort_gate_arr);
 	bf.to_file("sort_file.h", "sort");
+
+	cout << "DONE\n";
+	return 0;
 }

@@ -39,5 +39,7 @@ int main(int argc, char** argv) {
 	setup_plain_prot(false, "");
 	hash_in_circuit();
 	finalize_plain_prot();
+
+	cout << "DONE\n";
 	return 0;
 }

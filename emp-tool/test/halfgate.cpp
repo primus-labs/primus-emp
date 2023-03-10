@@ -48,7 +48,7 @@ int main(void) {
 	}
 	cout << "check\n";
 
-	cout << "Efficiency: ";
+	cout << "halfgate Efficiency : ";
 	auto start = clock_start();
 	for(int i = 0; i < 1024*1024*2; ++i) {
 		prg.random_block(data, 2);
@@ -61,5 +61,7 @@ int main(void) {
 	}
 	cout << 1024*1024*128/(time_from(start))*1e6 << " gates/second" << endl;
 
+
+	cout << "DONE\n";
 	return 0;
 }

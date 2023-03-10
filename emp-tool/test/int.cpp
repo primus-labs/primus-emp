@@ -59,4 +59,7 @@ int main(int argc, char** argv) {
 	cout << CircuitExecution::circ_exec->num_and()<<endl;
 
 	finalize_plain_prot();
+
+	cout << "DONE\n";
+	return 0;
 }

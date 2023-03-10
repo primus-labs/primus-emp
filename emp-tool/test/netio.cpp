@@ -57,4 +57,7 @@ int main(int argc, char** argv) {
 	HighSpeedNetIO * hsio = new HighSpeedNetIO(party == ALICE ? nullptr:"127.0.0.1", port, port+1);
 	test<HighSpeedNetIO>(hsio);
 	delete hsio;
+
+	cout << "DONE\n";
+	return 0;
 }

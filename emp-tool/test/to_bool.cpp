@@ -43,5 +43,7 @@ int main() {
       return -1;
     }
   }
-  return 0;
+
+	cout << "DONE\n";
+	return 0;
 }

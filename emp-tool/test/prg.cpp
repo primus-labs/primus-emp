@@ -51,4 +51,7 @@ int main() {
 		cout << "PRG speed with block size "<<length<<" :\t"<<(length*times*128)/(interval+0.0)*1e6*1e-9<<" Gbps\n";
 	}
 	return 0;
+
+	cout << "DONE\n";
+	return 0;
 }

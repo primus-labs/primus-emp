@@ -176,6 +176,9 @@ int main() {
 	block a, b;
 	block res[4];
 	int bench_size = 1024*1024;
+#if __EMSCRIPTEN__
+	bench_size = 1024*16;
+#endif
 
 	cout << "Simplified GF2^128 multiplication ... ";
 
@@ -191,7 +194,7 @@ int main() {
 	}
 	cout << "correct" << endl;
 
-	cout << "Benchmark: ";
+	cout << "f2k Benchmark: GF2^128_mul128_0 : ";
 	auto start = clock_start();
 	for(int i = 0; i < bench_size; ++i) {
 		mul128_0(res[0], res[1], res+2, res+3);
@@ -199,7 +202,7 @@ int main() {
 	}
 	cout << bench_size*2/(time_from(start))*1e6 << " operations/second" << endl;
 
-	cout << "Benchmark: ";
+	cout << "f2k Benchmark: GF2^128_mul128_1 : ";
 	start = clock_start();
 	for(int i = 0; i < bench_size; ++i) {
 		mul128_1(res[0], res[1], res+2, res+3);
@@ -221,7 +224,7 @@ int main() {
 	}
 	cout << "correct" << endl;
 
-	cout << "Benchmark: ";
+	cout << "f2k Benchmark: GF2^128_gfmul_0 : ";
 	start = clock_start();
 	for(int i = 0; i < bench_size; ++i) {
 		gfmul_0(res[0], res[1], res+2);
@@ -229,13 +232,17 @@ int main() {
 	}
 	cout << bench_size*2/(time_from(start))*1e6 << " operations/second" << endl;
 
-	cout << "Benchmark: ";
+	cout << "f2k Benchmark: GF2^128_gfmul_1 : ";
 	start = clock_start();
 	for(int i = 0; i < bench_size; ++i) {
 		gfmul_1(res[0], res[1], res+2);
 		gfmul_1(res[2], res[3], res);
 	}
 	cout << bench_size*2/(time_from(start))*1e6 << " operations/second" << endl;
+
+#if __EMSCRIPTEN__
+	bench_size = 1024*8;
+#endif
 
 	cout << "\nVector inner product (with reduction)\n";
 	block v0[128], v1[128];
@@ -246,7 +253,7 @@ int main() {
 		prg.random_block(v1, 128);
 		vector_inn_prdt_sum_red(r, v0, v1, 128);
 	}
-	cout << "Benchmark: PRG+MUL: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+MUL(reduction) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nVector inner product (without reduction)\n";
 	start = clock_start();
@@ -255,7 +262,7 @@ int main() {
 		prg.random_block(v1, 128);
 		vector_inn_prdt_sum_no_red(r, v0, v1, 128);
 	}
-	cout << "Benchmark: PRG+MUL: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+MUL(non-reduction) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nUniversal hash coefficients (no batch)\n";
 	block seed;
@@ -265,7 +272,7 @@ int main() {
 		prg.random_block(&seed, 1);
 		uni_hash_coeff_gen_batch_1(coefficient, seed, 128);
 	}
-	cout << "Benchmark: PRG+Coefficient generation: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+Coefficient-generation(batch1) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nUniversal hash coefficients (batch 2)\n";
 	start = clock_start();
@@ -273,7 +280,7 @@ int main() {
 		prg.random_block(&seed, 1);
 		uni_hash_coeff_gen_batch_2(coefficient, seed, 128);
 	}
-	cout << "Benchmark: PRG+Coefficient generation: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+Coefficient-generation(batch2) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nUniversal hash coefficients (batch 4)\n";
 	start = clock_start();
@@ -281,14 +288,14 @@ int main() {
 		prg.random_block(&seed, 1);
 		uni_hash_coeff_gen_batch_4(coefficient, seed, 128);
 	}
-	cout << "Benchmark: PRG+Coefficient generation: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+Coefficient-generation(batch4) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	start = clock_start();
 	for(int i = 0; i < bench_size; ++i) {
 		prg.random_block(&seed, 1);
 		uni_hash_coeff_gen(coefficient, seed, 126);
 	}
-	cout << "Benchmark: PRG+Coefficient generation: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+Coefficient-generation(almostUHF) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nGalois field packing\n";
 	start = clock_start();
@@ -298,7 +305,7 @@ int main() {
 		prg.random_block(data, 128);
 		pack.packing(res1, data);
 	}
-	cout << "Benchmark: PRG+packing: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+packing : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nXOR of all elements in a vector\n";
 	start = clock_start();
@@ -306,29 +313,36 @@ int main() {
 		prg.random_block(data, 128);
 		vector_self_xor(res1, data, 128);
 	}
-	cout << "Benchmark: PRG+XOR: " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+XOR : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
+
+#if __EMSCRIPTEN__
+	bench_size = 128;
+#else
+	bench_size = 1024;
+#endif
 
 	cout << "\nHash method 1: inner product with Chi vector (PRG)\n";
 	start = clock_start();
-	int hash_len = 1024*128;
+	int hash_len = bench_size*128;
 	block *to_hash = new block[hash_len];
 	block ret;
-	for(int i = 0; i < 1024; ++i) {
+	for(int i = 0; i < bench_size; ++i) {
 		prg.random_block(r, 1);
 		prg.random_block(to_hash, hash_len);
 		hash1(&ret, r[0], to_hash, hash_len);
 	}
-	cout << "Benchmark: PRG+XOR: " << 1024/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+XOR(Chi) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 
 	cout << "\nHash method 2: almost universal hash\n";
 	start = clock_start();
-	for(int i = 0; i < 1024; ++i) {
+	for(int i = 0; i < bench_size; ++i) {
 		prg.random_block(r, 1);
 		prg.random_block(to_hash, hash_len);
 		hash2(&ret, r[0], to_hash, hash_len);
 	}
-	cout << "Benchmark: PRG+XOR: " << 1024/(time_from(start))*1e6 << " operations/second" << endl;
+	cout << "f2k Benchmark: PRG+XOR(almostUHF) : " << bench_size/(time_from(start))*1e6 << " operations/second" << endl;
 	delete[] to_hash;
 
+	cout << "DONE\n";
 	return 0;
 }
