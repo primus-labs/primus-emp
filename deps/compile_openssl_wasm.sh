@@ -1,6 +1,6 @@
 #!/bin/bash
 curdir=$(pwd)
-installdir=${curdir}/install
+installdir=${curdir}/install_wasm
 uname_s=$(uname -s)
 
 # openssl version
@@ -23,8 +23,18 @@ fi
 # compile openssl
 if [ ! -f "${installdir}/lib/libssl.a" ]; then
   cd ${ossldir}
-  ./config --prefix=${installdir} --debug
-  make -j8
+  export CFLAGS="-O3 -msse -msse2 -msse3 -mavx -msimd128"
+  emconfigure ./config -no-asm -no-shared -no-async --prefix=${installdir} --debug
+  if [ "${uname_s}" = "Darwin" ]; then
+    # set CNF_CFLAGS=-pthread
+    sed -i "" 's/CNF_CFLAGS=.*/CNF_CFLAGS=-pthread/' Makefile
+    # set CROSS_COMPILE=
+    sed -i "" 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
+  else
+    # set CROSS_COMPILE=
+    sed -i 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
+  fi
+  emmake make -j8 build_generated libssl.a libcrypto.a 
   make install_dev
   cd ${curdir}
 fi
