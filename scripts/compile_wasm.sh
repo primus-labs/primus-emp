@@ -5,9 +5,9 @@
 # Compile deps
 # ######################
 cd ${depsdir}
-bash ./compile_openssl.sh
+bash ./compile_openssl_wasm.sh
 cd ${curdir}
-ossl_root=${depsdir}/install
+ossl_root=${depsdir}/install_wasm
 
 #
 #

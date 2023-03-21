@@ -67,8 +67,8 @@ ELSE()
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
 ENDIF()
 
-
-add_library(${NAME} SHARED ${sources})
+add_compile_options(-fPIC)
+add_library(${NAME} ${sources})
 target_link_libraries(${NAME} ${OPENSSL_LIBRARIES})
 
 install(DIRECTORY emp-tool DESTINATION include/)

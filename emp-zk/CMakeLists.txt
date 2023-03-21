@@ -36,7 +36,8 @@ set(sources
   emp-zk/emp-zk-bool/emp-zk-bool.cpp
   emp-zk/emp-zk-arith/emp-zk-arith.cpp
 )
-add_library(${NAME} SHARED ${sources})
+add_compile_options(-fPIC)
+add_library(${NAME} ${sources})
 
 install(DIRECTORY emp-zk DESTINATION include/)
 install(FILES cmake/emp-zk-config.cmake DESTINATION cmake/)
