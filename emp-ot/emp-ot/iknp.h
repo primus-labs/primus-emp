@@ -72,6 +72,7 @@ class IKNP: public COT<T> { public:
 			G0[i].reseed(&k0[i]);
 			G1[i].reseed(&k1[i]);
 		}
+		memset(&Delta, 0, sizeof(Delta));
 	}
 	void send_pre(block * out, int64_t length) {
 		if(not setup)
@@ -92,7 +93,10 @@ class IKNP: public COT<T> { public:
 		block t[block_size];
 		block tmp[block_size];
 		int64_t local_block_size = (len+127)/128*128;
-		io->recv_block(tmp, local_block_size);
+		// io->recv_block(tmp, local_block_size);
+		for (int i = 0; i < 128; i++) {
+			io->recv_data((uint8_t*)tmp + i * local_block_size/8, local_block_size/8);
+		}
 		for(int64_t i = 0; i < 128; ++i) {
 			G0[i].random_data(t+(i*block_size/128), local_block_size/8);
 			if (s[i])
