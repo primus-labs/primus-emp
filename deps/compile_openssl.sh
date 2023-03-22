@@ -11,20 +11,10 @@ echo "use openssl: ${ov}"
 
 # uncompress opnessl
 ossldir=${curdir}/openssl-${ov}
-if [ ! -d "${ossldir}" ]; then
-  if [ -f "openssl-${ov}.tar.gz" ]; then
-    tar -zxf openssl-${ov}.tar.gz
-  else
-    echo "can not found openssl-${ov}"
-    exit 1
-  fi
-fi
 
 # compile openssl
-if [ ! -f "${installdir}/lib/libssl.a" ]; then
-  cd ${ossldir}
-  ./config --prefix=${installdir} --debug
-  make -j8
-  make install_dev
-  cd ${curdir}
-fi
+cd ${ossldir}
+./config --prefix=${installdir} -no-shared --debug
+make -j8
+make install_dev
+cd ${curdir}
