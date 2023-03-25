@@ -13,8 +13,11 @@ echo "use openssl: ${ov}"
 ossldir=${curdir}/openssl-${ov}
 
 # compile openssl
-cd ${ossldir}
-./config --prefix=${installdir} -no-shared --debug
-make -j8
-make install_dev
-cd ${curdir}
+if [ ! -f "${installdir}/lib/libssl.a" ]; then
+  cd ${ossldir}
+  make clean
+  ./config --prefix=${installdir} -no-shared
+  make -j8
+  make install_dev
+  cd ${curdir}
+fi
