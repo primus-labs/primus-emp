@@ -23,8 +23,9 @@ fi
 # compile openssl
 if [ ! -f "${installdir}/lib/libssl.a" ]; then
   cd ${ossldir}
+  make clean
   export CFLAGS="-O3 -msse -msse2 -msse3 -mavx -msimd128"
-  emconfigure ./config -no-asm -no-shared -no-async --prefix=${installdir} --debug
+  emconfigure ./config -no-asm -no-shared -no-async --prefix=${installdir}
   if [ "${uname_s}" = "Darwin" ]; then
     # set CNF_CFLAGS=-pthread
     sed -i "" 's/CNF_CFLAGS=.*/CNF_CFLAGS=-pthread/' Makefile
@@ -34,7 +35,7 @@ if [ ! -f "${installdir}/lib/libssl.a" ]; then
     # set CROSS_COMPILE=
     sed -i 's/CROSS_COMPILE=.*/CROSS_COMPILE=/' Makefile
   fi
-  emmake make -j8 build_generated libssl.a libcrypto.a 
+  emmake make -j8 build_generated libssl.a libcrypto.a
   make install_dev
   cd ${curdir}
 fi

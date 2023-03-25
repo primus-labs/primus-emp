@@ -1,2 +1,3 @@
 openssl-1.1.1t
 install
+install_wasm
