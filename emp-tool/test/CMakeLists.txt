@@ -1,7 +1,7 @@
 #Testing macro
 macro (add_test_executable_with_lib _name libs)
 	add_executable(test_${_name} "${_name}.cpp")
-	target_link_libraries(test_${_name} ${OPENSSL_LIBRARIES} ${libs})
+	target_link_libraries(test_${_name} ${libs})
 endmacro()
 
 macro (add_test_case _name)

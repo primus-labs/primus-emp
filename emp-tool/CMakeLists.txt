@@ -53,14 +53,10 @@ emp-tool/circuits/files/bristol_fashion/Keccak_f.txt.cpp
 )
 ENDIF(${CRYPTO_IN_CIRCUIT})
 
-
-
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
-IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "(aarch64)|(arm64)|(x86_64)")
-  message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
-ELSE()
+IF(ENABLE_WASM)
   set(NO_WARN_FLAGS "-Wno-unused-function -Wno-unused-command-line-argument")
   set(CCFLAGS "-msimd128 -msse -msse2 -msse4.1 -msse4.2 -s ASSERTIONS=1")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
@@ -75,5 +71,8 @@ install(DIRECTORY emp-tool DESTINATION include/)
 install(DIRECTORY cmake/ DESTINATION cmake/)
 install(TARGETS ${NAME} DESTINATION lib)
 
-ENABLE_TESTING()
-ADD_SUBDIRECTORY(test)
+option(ENABLE_EMP_TOOL_TEST "emp-tool test" ON)
+IF(ENABLE_EMP_TOOL_TEST)
+  ENABLE_TESTING()
+  ADD_SUBDIRECTORY(test)
+ENDIF()
