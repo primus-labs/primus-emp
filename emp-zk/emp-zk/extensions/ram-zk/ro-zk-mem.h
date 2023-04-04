@@ -29,7 +29,7 @@ class ROZKRAM { public:
 	void init(vector<Integer> &data) {
 		uint64_t val = 0;
 		block m;
-		for(size_t i = 0; i < data.size(); ++i) {
+		for(uint64_t i = 0; i < data.size(); ++i) {
 			val = data[i].reveal<uint64_t>(ALICE);
 			list.push_back(pack((uint64_t)i, val));
 			clear_mem.push_back(val);
@@ -80,7 +80,7 @@ auto start = clock_start();
 		vector<block> sorted_X, sorted_MAC;
 		block m;
 		__uint128_t val_mask = ((__uint128_t)1 << val_sz) - 1;
-		for(size_t i = 0; i < list.size(); ++i) {
+		for(uint64_t i = 0; i < list.size(); ++i) {
 			__uint128_t item;
 			if(party == ALICE) item = sorted_list[i];
 			else item = 0;
@@ -93,7 +93,7 @@ auto start = clock_start();
 		}
 
 		bool cheat = true;
-		for(size_t i = 0; i < list.size()-1; ++i) {
+		for(uint64_t i = 0; i < list.size()-1; ++i) {
 			Bit eq = !(sort_index[i].geq(sort_index[i+1])) | (sort_index[i].equal(sort_index[i+1]) & sort_value[i].equal(sort_value[i+1]));
 			bool res = eq.reveal<bool>(PUBLIC);
 			cheat = cheat and res;
@@ -112,7 +112,7 @@ check3 += time_from(start);
 
 	void vector_inn_prdt(block &xx, block &mm, vector<__uint128_t> &X, vector<block> &MAC, block r) {
 		block x, m;
-		size_t i = 1;
+		uint64_t i = 1;
 		block tmp = (block)X[0];
 		ostriple->compute_add_const(xx, mm, tmp, MAC[0], r);
 		while(i < list.size()) {
@@ -125,7 +125,7 @@ check3 += time_from(start);
 
 	void vector_inn_prdt_bch2(block &xx, block &mm, vector<__uint128_t> &X, vector<block> &MAC, block r) {
 		block x[2], m[2], t[2];
-		size_t i = 1;
+		uint64_t i = 1;
 		block tmp = (block)X[0];
 		ostriple->compute_add_const(xx, mm, tmp, MAC[0], r);
 		while(i < list.size()-1) {
@@ -147,7 +147,7 @@ check3 += time_from(start);
 
 	void vector_inn_prdt_bch3(block &xx, block &mm, vector<__uint128_t> &X, vector<block> &MAC, block r) {
 		block x[3], m[3], t[3];
-		size_t i = 1;
+		uint64_t i = 1;
 		block tmp = (block)X[0];
 		ostriple->compute_add_const(xx, mm, tmp, MAC[0], r);
 		while(i < list.size()-2) {
@@ -169,7 +169,7 @@ check3 += time_from(start);
 
 	void vector_inn_prdt_bch4(block &xx, block &mm, vector<__uint128_t> &X, vector<block> &MAC, block r) {
 		block x[4], m[4], t[4];
-		size_t i = 1;
+		uint64_t i = 1;
 		block tmp = (block)X[0];
 		ostriple->compute_add_const(xx, mm, tmp, MAC[0], r);
 		while(i < list.size()-3) {
