@@ -31,7 +31,7 @@ class Bit : public Swappable<Bit>{ public:
 
 	//batcher
 	template<typename... Args>
-	static size_t bool_size(Args&&... args) {
+	static uint64_t bool_size(Args&&... args) {
 		return 1;
 	}
 

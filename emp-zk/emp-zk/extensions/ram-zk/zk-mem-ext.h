@@ -4,22 +4,22 @@
 
 template<typename IO>
 class ZkRamExt { public:
-    const std::size_t index_bit_sz = 32;
-    const std::size_t step_bit_sz = 31;
-    const std::size_t val_bit_sz = 64;
+    const std::uint64_t index_bit_sz = 32;
+    const std::uint64_t step_bit_sz = 31;
+    const std::uint64_t val_bit_sz = 64;
 	uint64_t capacity = 1, step = 0;
 	vector<vector<uint64_t>> mem;
 	vector<vector<block>> check_MAC;
 	vector<vector<__uint128_t>> list;
 	int party;
 	int index_sz, step_sz;
-    std::size_t val_sz, val_uint64_sz;
+    std::uint64_t val_sz, val_uint64_sz;
 	IO * io;
 	block Delta;
 	GaloisFieldPacking gfp;
 	F2kOSTriple<IO> *ostriple = nullptr;
 	//double online = 0, check1 = 0, check2 = 0;
-	ZkRamExt(int _party, int _index_sz, int _step_sz, std::size_t _val_sz) : party(_party), index_sz(_index_sz), step_sz(_step_sz), val_sz(_val_sz) {
+	ZkRamExt(int _party, int _index_sz, int _step_sz, std::uint64_t _val_sz) : party(_party), index_sz(_index_sz), step_sz(_step_sz), val_sz(_val_sz) {
         /*if(_val_sz % 64 != 0) {
             throw invalid_argument("input size in bytes should be divided by 8");
         }*/
@@ -49,7 +49,7 @@ class ZkRamExt { public:
 		res1 = res1 ^ res2;
 		vector_inn_prdt_sum_red(&res2, (block*)(index.bits.data()), gfp.base+val_bit_sz+1+step_bit_sz, index.bits.size());	
 		mac[0] = res1 ^ res2;
-        std::size_t i = 1, j = 1;
+        std::uint64_t i = 1, j = 1;
         for(; i < mac.size() - 1; ++i, j+=2) {
             vector_inn_prdt_sum_red(&res1, (block*)(val[j].bits.data()), gfp.base+val_bit_sz, val[j].bits.size());
             vector_inn_prdt_sum_red(&res2, (block*)(val[j+1].bits.data()), gfp.base, val[j+1].bits.size());
@@ -71,7 +71,7 @@ class ZkRamExt { public:
 		res <<= val_bit_sz;
 		res |= value[0];
         packed_row[0] = res;
-        std::size_t i = 1, j = 1;
+        std::uint64_t i = 1, j = 1;
         for(; i < packed_row.size() - 1; ++i, j+=2) {
             res = (__uint128_t)value[j];
             res <<= val_bit_sz;
@@ -96,11 +96,11 @@ class ZkRamExt { public:
             vector<__uint128_t> packed_row;
 			pack(packed_row, clear_index, val_in_mem, step, 0);
             list.push_back(packed_row);
-            for(std::size_t i = 0; i < val_uint64_sz; ++i) {
+            for(std::uint64_t i = 0; i < val_uint64_sz; ++i) {
                 val[i] = Integer(val_bit_sz, val_in_mem[i], ALICE);
             }
 		} else {
-            for(std::size_t i = 0; i < val_uint64_sz; ++i) {
+            for(std::uint64_t i = 0; i < val_uint64_sz; ++i) {
                 val[i] = Integer(val_bit_sz, (uint64_t)0, ALICE);
             }
         }
@@ -115,7 +115,7 @@ class ZkRamExt { public:
 //auto t1 = clock_start();
 		uint64_t clear_index = index.reveal<uint64_t>(ALICE);
         vector<uint64_t> clear_value(val_uint64_sz);
-        for(std::size_t i = 0; i < val_uint64_sz; ++i) {
+        for(std::uint64_t i = 0; i < val_uint64_sz; ++i) {
             clear_value[i] = value[i].reveal<uint64_t>(ALICE);
         }
 		if(party == ALICE) {
@@ -134,11 +134,11 @@ class ZkRamExt { public:
 	void refresh() {
 		if(step + capacity == (1<<(step_sz-1))) {
 			vector<vector<Integer>> save_mem(capacity);
-			for(size_t i = 0; i < capacity; ++i) {
+			for(uint64_t i = 0; i < capacity; ++i) {
 				read(save_mem[i], Integer(index_sz, i, PUBLIC));
 			}
 			check();
-			for(size_t i = 0; i < capacity; ++i) {
+			for(uint64_t i = 0; i < capacity; ++i) {
 				write(save_mem[i], Integer(index_sz, i, PUBLIC));
 			}
 		}
@@ -171,12 +171,12 @@ class ZkRamExt { public:
         if(party == ALICE) {
             is_dummy = ((val_uint64_sz&0x1)==0x1)?false:true;
         }
-		for(size_t i = 0; i < step; ++i) {
+		for(uint64_t i = 0; i < step; ++i) {
             uint64_t high = 0;
             sort_value[i].resize(val_uint64_sz);
 			if (party == ALICE) {
                 sort_value[i][0] = Integer(val_bit_sz, (uint64_t)sorted_list[i][0], ALICE);
-                std::size_t j = 1;
+                std::uint64_t j = 1;
                 while(j < val_uint64_sz - 2) {
                     sort_value[i][j] = Integer(val_bit_sz, (uint64_t)(sorted_list[i][(j+1)/2]>>val_bit_sz), ALICE);
                     sort_value[i][j+1] = Integer(val_bit_sz, (uint64_t)sorted_list[i][(j+1)/2], ALICE);
@@ -187,7 +187,7 @@ class ZkRamExt { public:
 
 			    high = (uint64_t)(sorted_list[i][0] >> val_bit_sz);
             } else {
-                for(size_t j = 0; j < val_uint64_sz; ++j) {
+                for(uint64_t j = 0; j < val_uint64_sz; ++j) {
                     sort_value[i][j] = Integer(val_bit_sz, (uint64_t)0, ALICE);
                 }
             }
@@ -201,11 +201,11 @@ class ZkRamExt { public:
 
         // (i1 != i2) | ((i1 == i2) & (s1 < s2) & ((!o2 & (v1 == v2) | o2)))
 		Bit condition = Bit(true, PUBLIC);
-		for(size_t i = 1; i < step; ++i) {
+		for(uint64_t i = 1; i < step; ++i) {
             Bit index_neq = sort_index[i-1] != sort_index[i];
             Bit step_less = sort_step[i-1] < sort_step[i];
             Bit value_eq = sort_value[i-1][0] == sort_value[i][0];
-            for(size_t j = 1; j < val_uint64_sz; ++j) {
+            for(uint64_t j = 1; j < val_uint64_sz; ++j) {
                 value_eq = value_eq & (sort_value[i-1][j] == sort_value[i][j]);
             }
             condition = condition & (index_neq | (!index_neq & step_less & ((!sort_op[i] & value_eq) | sort_op[i])));
@@ -220,7 +220,7 @@ class ZkRamExt { public:
 		sync_zk_bool<IO>();
 		vector<vector<block>> sorted_MAC(step);	
 		// Now check that sort_value, sort_index, sort_step, sort_op is consistent with the other set of values
-		for(size_t i = 0; i < step; ++i) {
+		for(uint64_t i = 0; i < step; ++i) {
 			pack(sorted_MAC[i], sort_index[i], sort_value[i], sort_step[i], sort_op[i]);
 		}
         //check1 += time_from(t1);
@@ -256,9 +256,9 @@ class ZkRamExt { public:
                        uint64_t dim1, uint64_t dim2) {
         list_compressed.resize(dim1);
         mac_compressed.resize(dim1);
-        for(std::size_t i = 0; i < dim1; ++i) {
+        for(std::uint64_t i = 0; i < dim1; ++i) {
             block data = zero_block, _mac = zero_block;
-            for(std::size_t j = 0; j < dim2; ++j) {
+            for(std::uint64_t j = 0; j < dim2; ++j) {
                 block tmp1 = zero_block, tmp2 = zero_block;
                 if(party == ALICE) gfmul(coefficient[j], (block)list[i][j], &tmp1);
                 gfmul(coefficient[j], mac[i][j], &tmp2);
@@ -272,7 +272,7 @@ class ZkRamExt { public:
 
 	void inn_prdt_bch4(block &val, block &mac, vector<block>& X, vector<block>& MAC, block r) {
 		block x[4], m[4];
-		size_t i = 1;
+		uint64_t i = 1;
 		if(party == ALICE) {
 			ostriple->compute_add_const(val, mac, X[0], MAC[0], r);
 			while(i < step-3) {

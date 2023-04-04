@@ -86,18 +86,18 @@ inline Point& Point::operator=(Point p) {
 	return *this;
 }
 
-inline void Point::to_bin(unsigned char * buf, size_t buf_len) {
+inline void Point::to_bin(unsigned char * buf, uint64_t buf_len) {
 	int ret = EC_POINT_point2oct(group->ec_group, point, POINT_CONVERSION_UNCOMPRESSED, buf, buf_len, group->bn_ctx);
 	if(ret == 0) error("ECC TO_BIN");
 }
 
-inline size_t Point::size() {
-	size_t ret = EC_POINT_point2oct(group->ec_group, point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, group->bn_ctx);
+inline uint64_t Point::size() {
+	uint64_t ret = EC_POINT_point2oct(group->ec_group, point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, group->bn_ctx);
 	if(ret == 0) error("ECC SIZE_BIN");
 	return ret;
 }
 
-inline void Point::from_bin(Group * g, const unsigned char * buf, size_t buf_len) {
+inline void Point::from_bin(Group * g, const unsigned char * buf, uint64_t buf_len) {
 	if (point == nullptr) {
 		group = g;
 		point = EC_POINT_new(group->ec_group);
@@ -151,7 +151,7 @@ inline Group::~Group(){
 		delete[] scratch;
 }
 
-inline void Group::resize_scratch(size_t size) {
+inline void Group::resize_scratch(uint64_t size) {
 	if (size > scratch_size) {
 		delete[] scratch;
 		scratch_size = size;

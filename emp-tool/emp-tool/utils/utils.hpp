@@ -35,7 +35,7 @@ inline void parse_party_and_port(const char *const * arg, int * party, int * por
 template <typename T>
 inline T bool_to_int(const bool *data) {
     T ret {};
-    for (size_t i = 0; i < sizeof(T)*8; ++i) {
+    for (uint64_t i = 0; i < sizeof(T)*8; ++i) {
         T s {data[i]};
         s <<= i;
         ret |= s;

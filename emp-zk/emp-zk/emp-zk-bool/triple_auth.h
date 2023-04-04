@@ -26,10 +26,10 @@ class TripleAuth { public:
 		hash.put_block(mac, length);
 	}
 
-	void ver_check(bool * b, const block * key, size_t length) {
+	void ver_check(bool * b, const block * key, uint64_t length) {
 		if(tmp.size() < length)
 			tmp.resize(length);
-		for(size_t i = 0; i < length; ++i)
+		for(uint64_t i = 0; i < length; ++i)
 			tmp[i] = key[i] ^ choice[b[i]];
 		hash.put_block(tmp.data(), length);
 	}

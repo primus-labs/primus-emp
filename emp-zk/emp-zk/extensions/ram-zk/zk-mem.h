@@ -108,12 +108,12 @@ online += time_from(t1);
 	void refresh() {
 		if(step + capacity == (1<<(step_sz-1))) {
 			vector<Integer> tmp;
-			for(size_t i = 0; i < capacity; ++i) {
+			for(uint64_t i = 0; i < capacity; ++i) {
 				auto val = read(Integer(index_sz, i, PUBLIC));
 				tmp.push_back(val);
 			}
 			check();
-			for(size_t i = 0; i < capacity; ++i) {
+			for(uint64_t i = 0; i < capacity; ++i) {
 				write(Integer(index_sz, i, PUBLIC), tmp[i]);
 			}
 		}
@@ -132,7 +132,7 @@ auto t1 = clock_start();
 		__uint128_t val_mask = ((__uint128_t)1 << val_sz) - 1;
 		uint64_t idx_mask = ((uint64_t)1 << index_sz) - 1;
 		__uint128_t step_mask = ((__uint128_t)1 << step_sz) - 1;
-		for(size_t i = 0; i < step; ++i) {
+		for(uint64_t i = 0; i < step; ++i) {
 			__uint128_t val = 0;
 			if (party == ALICE) val = sorted_list[i];
 			sort_value.push_back(Integer(val_sz, val & val_mask, ALICE));
@@ -146,7 +146,7 @@ auto t1 = clock_start();
 		}
 
 		Bit condition = Bit(true, PUBLIC);
-		for(size_t i = 1; i < step; ++i) {
+		for(uint64_t i = 1; i < step; ++i) {
 			auto neq = sort_index[i-1] != sort_index[i];
 			condition = condition & (sort_step[i-1] < sort_step[i] | neq); // neq why?
 			condition = condition & (sort_value[i-1] == sort_value[i] | neq | sort_op[i]);
@@ -157,7 +157,7 @@ auto t1 = clock_start();
 		sync_zk_bool<IO>();
 		vector<block> sorted_MAC;	
 		// Now check that sort_value, sort_index, sort_step, sort_op is consistent with the other set of values
-		for(size_t i = 0; i < step; ++i) {
+		for(uint64_t i = 0; i < step; ++i) {
 			block m;
 			pack(m, sort_index[i], sort_value[i], sort_step[i], sort_op[i]);
 			sorted_MAC.push_back(m);
@@ -173,7 +173,7 @@ check1 += time_from(t1);
 
 	void inn_prdt(block &val, block &mac, block *X, vector<block>& MAC, block r) {
 		block x, m;
-		size_t i = 1;
+		uint64_t i = 1;
 		if(party == ALICE) {
 			ostriple->compute_add_const(val, mac, X[0], MAC[0], r);
 			while(i < step) {
@@ -194,7 +194,7 @@ check1 += time_from(t1);
 
 	void inn_prdt_bch2(block &val, block &mac, block *X, vector<block>& MAC, block r) {
 		block x[2], m[2];
-		size_t i = 1;
+		uint64_t i = 1;
 		if(party == ALICE) {
 			ostriple->compute_add_const(val, mac, X[0], MAC[0], r);
 			while(i < step-1) {
@@ -229,7 +229,7 @@ check1 += time_from(t1);
 
 	void inn_prdt_bch3(block &val, block &mac, block *X, vector<block>& MAC, block r) {
 		block x[3], m[3];
-		size_t i = 1;
+		uint64_t i = 1;
 		if(party == ALICE) {
 			ostriple->compute_add_const(val, mac, X[0], MAC[0], r);
 			while(i < step-2) {
@@ -264,7 +264,7 @@ check1 += time_from(t1);
 
 	void inn_prdt_bch4(block &val, block &mac, block *X, vector<block>& MAC, block r) {
 		block x[4], m[4];
-		size_t i = 1;
+		uint64_t i = 1;
 		if(party == ALICE) {
 			ostriple->compute_add_const(val, mac, X[0], MAC[0], r);
 			while(i < step-3) {

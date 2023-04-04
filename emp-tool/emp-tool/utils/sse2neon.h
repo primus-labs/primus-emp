@@ -2065,7 +2065,7 @@ FORCE_INLINE __m128i _mm_loadu_si64(const void *p)
 // https://software.intel.com/en-us/
 //         cpp-compiler-developer-guide-and-reference-allocating-and-freeing-aligned-memory-blocks
 #if !defined(SSE2NEON_ALLOC_DEFINED)
-FORCE_INLINE void *_mm_malloc(size_t size, size_t align)
+FORCE_INLINE void *_mm_malloc(uint64_t size, uint64_t align)
 {
     void *ptr;
     if (align == 1)
