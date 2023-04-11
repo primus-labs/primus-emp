@@ -148,7 +148,8 @@ public:
 	 	return intfp_add_const(arith_candidate[edab_fp], diff);
 	}
 
-	void bool2arith(__uint128_t *out, const Integer *in, size_t len) {
+	void bool2arith(__uint128_t *out, const Integer *in, uint32_t len) {
+		/*ujnss typefix: set `len`'s type according to `edabit_num`'s type */
 		int counter = 0;
 		int round1_num, round, leftover;
 		if(len <= edabit_num) {
@@ -203,7 +204,8 @@ public:
 		return sum_boo.select(sum_boo.bits[61], sum_boo + int_boo_pr);
 	}
 
-	void arith2bool(Integer *out, const __uint128_t *in, size_t len) {
+	void arith2bool(Integer *out, const __uint128_t *in, uint32_t len) {
+		/*ujnss typefix: set `len`'s type according to `edabit_num`'s type */
 		int counter = 0;
 		int round1_num, round, leftover;
 		if(len <= edabit_num) {

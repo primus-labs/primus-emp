@@ -54,6 +54,7 @@ public:
 		andgate_right_buffer = new block[CHECK_SZ];
 
 		block tmp;
+		printf("OSTriple 6 CHECK_SZ:%ld\n", CHECK_SZ);
 		ferret->rcot(&tmp, 1);
 
 		choice[0] = choice2[0] = zero_block;
@@ -64,6 +65,7 @@ public:
 
 		auth_helper = new TripleAuth<IO>(party, io);
 		if(party == BOB) auth_helper->set_delta(this->delta);
+		printf("OSTriple a\n");
 	}	
 
 	~OSTriple () {
@@ -94,6 +96,7 @@ public:
 	 * authenticated bits for inputs of the prover
 	 */
 	void authenticated_bits_input(block *auth, const bool* in, int len) {
+		printf("OSTriple authenticated_bits_input 1\n");
 		ferret->rcot(auth, len);
 
 		if(party == ALICE) {
