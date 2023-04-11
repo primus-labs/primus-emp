@@ -5,6 +5,7 @@ using namespace std;
 using namespace emp;
 
 class AbandonIO: public IOChannel<AbandonIO> { public:
+	void flush(){}
 	void send_data_internal(const void * data, int len) {
 	}
 

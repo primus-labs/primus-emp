@@ -166,11 +166,13 @@ void FerretCOT<T>::rcot(block *data, int64_t num) {
 		memcpy(pt, ot_data, ot_limit*sizeof(block));
 		pt += ot_limit;
 	}
+	printf("FerretCOT rcot 7 %ld (this takes long...)\n",last_round_ot);
 	if(last_round_ot > 0) {
 		extend_f2k();
 		memcpy(pt, ot_data, last_round_ot*sizeof(block));
 		ot_used = last_round_ot;
 	}
+	printf("FerretCOT rcot 8\n");
 }
 
 template<typename T>
