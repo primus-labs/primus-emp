@@ -16,8 +16,8 @@ namespace emp {
 #define NOT_GATE 2
 
 template<typename T>
-void execute_circuit(block * wires, const T * gates, uint64_t num_gate) {
-	for(uint64_t i = 0; i < num_gate; ++i) {
+void execute_circuit(block * wires, const T * gates, size_t num_gate) {
+	for(size_t i = 0; i < num_gate; ++i) {
 		if(gates[4*i+3] == AND_GATE) {
 			wires[gates[4*i+2]] = CircuitExecution::circ_exec->and_gate(wires[gates[4*i]], wires[gates[4*i+1]]);
 		}

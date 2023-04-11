@@ -30,17 +30,17 @@ int aes_128_ctr(const __m128i key,
 		const __m128i iv,
 		T * input, // if this is null, we'll just do a blind of length length
 		uint8_t * output = nullptr, // if this is null, we'll encrypt in place
-		const uint64_t length = 1,
+		const size_t length = 1,
 		const uint64_t start_chunk = 0) {
-	const uint64_t num_bytes = (input == nullptr) ? length : (length * sizeof(T));
+	const size_t num_bytes = (input == nullptr) ? length : (length * sizeof(T));
 	__m128i counter = iv;
 	if (start_chunk != 0) { // increment iv, but it's big-endian, so it's funky
 		uint64_t count;
-		for(uint64_t i = 0; i < 8; ++i) {
+		for(size_t i = 0; i < 8; ++i) {
 			((uint8_t *)(&count))[i] = ((uint8_t *)(&counter))[15 - i];
 		}
 		count += start_chunk;
-		for(uint64_t i = 0; i < 8; ++i) {
+		for(size_t i = 0; i < 8; ++i) {
 			((uint8_t *)(&counter))[15 - i] = ((uint8_t *)(&count))[i];
 		}
 	}
@@ -53,7 +53,7 @@ int aes_128_ctr(const __m128i key,
 	}
 	if (input == nullptr) { // then we're just doing a blind
 		input = (T*) output;
-		for (uint64_t i = 0; i < num_bytes; ++i) {
+		for (size_t i = 0; i < num_bytes; ++i) {
 			output[i] = 0;
 		}
 	}
@@ -79,7 +79,7 @@ int aes_128_ctr(const __m128i key,
 		EVP_CIPHER_CTX_free(ctx);
 		return -3;
 	}
-	uint64_t ciphertext_len = len;
+	size_t ciphertext_len = len;
 	// Finalise the encryption. Further ciphertext bytes may be written at
 	// this stage.
 	if(1 != EVP_EncryptFinal_ex(ctx, ((unsigned char *) output) + len, &len)) {
@@ -114,7 +114,7 @@ class AES_128_CTR_Calculator { public:
 		this->counter.bits.resize(128);
 	}
 
-	uint64_t reverse_bytes(const uint64_t i) {
+	size_t reverse_bytes(const size_t i) {
 		return((8 * (15 - (i / 8))) + (i % 8));
 	}
 
@@ -122,7 +122,7 @@ class AES_128_CTR_Calculator { public:
 			const block iv[],
 			block input[], // if this is null, we'll just do a blind of length length
 			block * output = nullptr, // if this is null, we'll encrypt in place
-			const uint64_t length = 128, // in blocks (so, basically bits)
+			const size_t length = 128, // in blocks (so, basically bits)
 			const int party = emp::PUBLIC,
 			const uint64_t start_chunk = 0) {
 		if (input == nullptr && output == nullptr) {
@@ -131,7 +131,7 @@ class AES_128_CTR_Calculator { public:
 		}
 
 		if (key != nullptr) {
-			for (uint64_t i = 0; i < 128; ++i) {
+			for (size_t i = 0; i < 128; ++i) {
 				this->keyiv[i] = key[reverse_bytes(i)];
 			}
 		}
@@ -139,30 +139,30 @@ class AES_128_CTR_Calculator { public:
 		if (length < 129) {
 
 			if (start_chunk == 0) {
-				for(uint64_t i = 0; i < 128; ++i) {
+				for(size_t i = 0; i < 128; ++i) {
 					this->keyiv[i + 128] = iv[reverse_bytes(i)];
 				}
 			} else {
-				for(uint64_t i = 0; i < 128; ++i) {
+				for(size_t i = 0; i < 128; ++i) {
 					this->counter.bits[i].bit = iv[reverse_bytes(i)];
 				}
 				uint64_t start_chunks[2];
 				start_chunks[1] = 0;
 				start_chunks[0] = start_chunk;
 				this->counter = this->counter + emp::Integer(128, start_chunks, party);
-				for(uint64_t i = 0; i < 128; ++i) {
+				for(size_t i = 0; i < 128; ++i) {
 					this->keyiv[i + 128] = this->counter.bits[i].bit;
 				}
 			}
 
 			if (input == nullptr) {
 				this->circuit->compute(this->blind, this->keyiv);
-				for(uint64_t i = 0; i < length; ++i) {
+				for(size_t i = 0; i < length; ++i) {
 					output[i] = this->blind[reverse_bytes(i)];
 				}
 			} else {
 				this->circuit->compute(this->blind, this->keyiv);
-				for(uint64_t i = 0; i < length; ++i) {
+				for(size_t i = 0; i < length; ++i) {
 					if (output == nullptr) {
 						input[i] = CircuitExecution::circ_exec->xor_gate(input[i], this->blind[reverse_bytes(i)]);
 					} else {
@@ -193,7 +193,7 @@ class AES_128_CTR_Calculator { public:
 			const __m128i iv, // IV here is out-of-circuit information
 			block input[], // if this is null, we'll just do a blind of length length
 			block * output = nullptr, // if this is null, we'll encrypt in place
-			const uint64_t length = 128, // in blocks (so, basically bits)
+			const size_t length = 128, // in blocks (so, basically bits)
 			const int party = emp::PUBLIC,
 			const uint64_t start_chunk = 0) {
 		if (input == nullptr && output == nullptr) {
@@ -202,7 +202,7 @@ class AES_128_CTR_Calculator { public:
 		}
 
 		if (key != nullptr) {
-			for (uint64_t i = 0; i < 128; ++i) {
+			for (size_t i = 0; i < 128; ++i) {
 				this->keyiv[i] = key[reverse_bytes(i)];
 			}
 		}
@@ -210,13 +210,13 @@ class AES_128_CTR_Calculator { public:
 		int answer;
 		__m128i counter = iv;
 		uint64_t count;
-		for(uint64_t j = 0; j < 8; ++j) {
+		for(size_t j = 0; j < 8; ++j) {
 			((uint8_t *)(&count))[j] = ((uint8_t *)(&counter))[15 - j];
 		}
 		count += start_chunk;
 
 		for (uint64_t i = 0; (128 * i) < length; ++i) {
-			for(uint64_t j = 0; j < 8; ++j) {
+			for(size_t j = 0; j < 8; ++j) {
 				((uint8_t *)(&counter))[15 - j] = ((uint8_t *)(&count))[j];
 			}
 			answer = this->aes_128_ctr(nullptr,
@@ -239,7 +239,7 @@ class AES_128_CTR_Calculator { public:
 			const __m128i iv, // IV here is out-of-circuit information
 			block input[], // if this is null, we'll just do a blind of length length
 			block * output = nullptr, // if this is null, we'll encrypt in place
-			const uint64_t length = 128, // in blocks (so, basically bits)
+			const size_t length = 128, // in blocks (so, basically bits)
 			const int party = emp::PUBLIC,
 			const uint64_t start_chunk = 0) {
 		if (input == nullptr && output == nullptr) {
@@ -255,16 +255,16 @@ class AES_128_CTR_Calculator { public:
 		emp::Integer blind = emp::Integer(length, bytes, party);
 
 		if (input == nullptr) {
-			for(uint64_t i = 0; i < length; ++i) {
+			for(size_t i = 0; i < length; ++i) {
 				output[i] = blind[i].bit;
 			}
 		} else {
 			if (output == nullptr) {
-				for(uint64_t i = 0; i < length; ++i) {
+				for(size_t i = 0; i < length; ++i) {
 					input[i] = CircuitExecution::circ_exec->xor_gate(input[i], blind[i].bit);
 				}
 			} else {
-				for(uint64_t i = 0; i < length; ++i) {
+				for(size_t i = 0; i < length; ++i) {
 					output[i] = CircuitExecution::circ_exec->xor_gate(input[i], blind[i].bit);
 				}
 			}

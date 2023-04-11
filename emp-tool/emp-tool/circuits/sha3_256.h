@@ -27,7 +27,7 @@ namespace emp {
 // Beware: ensure the array "output" can hold at least 32 bytes.
 // returns 0 if all went well, negative numbers otherwise. 
 template<typename T>
-int sha3_256(uint8_t * output, const T * input, const uint64_t length = 1) {
+int sha3_256(uint8_t * output, const T * input, const size_t length = 1) {
 	EVP_MD_CTX * mdctx;
 #ifdef __EMSCRIPTEN__
 	const EVP_MD * algo = EVP_sha256();
@@ -87,16 +87,16 @@ class SHA3_256_Calculator {
 		}
 
 		// The Keccak circuit uses different endianness, so this calculates "equivalent" addresses (in bits).
-		uint64_t keccak_address_translator(uint64_t i) {
+		size_t keccak_address_translator(size_t i) {
 			return ((8 * (199 - (i/8))) + (i % 8));
 		}
 
 		// Calculate the sha3_256 of a bunch of blocks (essentially concatenates the arrays "inputs")
 		void sha3_256(block output[], // we'll write 256 blocks to here
 				const block ** inputs, // concatenate these to get the bitstring we're hashing.
-				const uint64_t * input_sizes, // the size of each input array, please
-				const uint64_t input_count = 1) { // the number of arrays of blocks in "inputs".
-			uint64_t index, i, j;
+				const size_t * input_sizes, // the size of each input array, please
+				const size_t input_count = 1) { // the number of arrays of blocks in "inputs".
+			size_t index, i, j;
 			for (i = 0; i < 1600; ++i) {
 				blocks[i] = zero;
 			}
@@ -134,8 +134,8 @@ class SHA3_256_Calculator {
 		// Calculate the sha3_256 of a bunch of Integers (essentially concatenates the Integers "inputs")
 		void sha3_256(block output[], // we'll write 256 blocks to here as the output hash.
 				const Integer inputs[], // we'll concatenate these, and hash the result.
-				const uint64_t input_count = 1) { // the number of Integers in "inputs"
-			uint64_t index, i, j;
+				const size_t input_count = 1) { // the number of Integers in "inputs"
+			size_t index, i, j;
 			for (i = 0; i < 1600; ++i) {
 				blocks[i] = zero;
 			}
@@ -172,15 +172,15 @@ class SHA3_256_Calculator {
 		// sha3_256 in circuit for an array of input blocks
 		void sha3_256(block output[], // we'll write 256 blocks to here as the output hash.
 				const block input[], // the array of blocks to hash (each represents a bit)
-				const uint64_t len) { // the length of "input"
+				const size_t len) { // the length of "input"
 			this->sha3_256(output, &input, &len);
 		}
 
 		// Calculate the sha3_256 of a bunch of blocks (essentially concatenates the arrays "inputs")
 		void sha3_256(Integer * output,// we'll write 256 bits to here as the output hash.
 				const block ** inputs,// concatenate these to get the bitstring we're hashing.
-				const uint64_t * input_sizes,// the size of each input array, please
-				const uint64_t input_count = 1) {// the number of arrays of blocks in "inputs".
+				const size_t * input_sizes,// the size of each input array, please
+				const size_t input_count = 1) {// the number of arrays of blocks in "inputs".
 			output->bits.resize(256);
 			this->sha3_256(&(output->bits[0].bit), inputs, input_sizes, input_count);
 		}
@@ -188,7 +188,7 @@ class SHA3_256_Calculator {
 		// sha3_256 in circuit for an array of input blocks
 		void sha3_256(Integer * output,// we'll write 256 bits to here as the output hash.
 				const block input[],// the array of blocks to hash (each represents a bit)
-				const uint64_t len) {// the length of "input"
+				const size_t len) {// the length of "input"
 			output->bits.resize(256);
 			this->sha3_256(&(output->bits[0].bit), input, len);
 		}
@@ -196,7 +196,7 @@ class SHA3_256_Calculator {
 		// Calculate the sha3_256 of a bunch of Integers (essentially concatenates the Integers "inputs")
 		void sha3_256(Integer * output,// we'll write 256 bits to here as the output hash.
 				const Integer inputs[],// we'll concatenate these, and hash the result.
-				const uint64_t input_count = 1) {// the number of Integers in "inputs"
+				const size_t input_count = 1) {// the number of Integers in "inputs"
 			output->bits.resize(256);
 			this->sha3_256(&(output->bits[0].bit), inputs, input_count);
 		}

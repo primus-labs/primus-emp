@@ -64,7 +64,7 @@ class Float: Swappable<Float> { public:
 
 	Bit& operator[](int index);
 	const Bit & operator[](int index) const;
-	uint64_t size() const {return 32;};
+	size_t size() const {return 32;};
 };
 
 #include "emp-tool/circuits/float32.hpp"

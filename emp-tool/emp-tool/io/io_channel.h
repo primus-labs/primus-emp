@@ -10,27 +10,27 @@ namespace emp {
 template<typename T> 
 class IOChannel { public:
 	uint64_t counter = 0;
-	void send_data(const void * data, uint64_t nbyte) {
+	void send_data(const void * data, size_t nbyte) {
 		counter +=nbyte;
 		derived().send_data_internal(data, nbyte);
 		derived().flush();
 	}
 
-	void recv_data(void * data, uint64_t nbyte) {
+	void recv_data(void * data, size_t nbyte) {
 		derived().recv_data_internal(data, nbyte);
 	}
 
-	void send_block(const block* data, uint64_t nblock) {
+	void send_block(const block* data, size_t nblock) {
 		send_data(data, nblock*sizeof(block));
 	}
 
-	void recv_block(block* data, uint64_t nblock) {
+	void recv_block(block* data, size_t nblock) {
 		recv_data(data, nblock*sizeof(block));
 	}
 
-	void send_pt(Point *A, uint64_t num_pts = 1) {
-		for(uint64_t i = 0; i < num_pts; ++i) {
-			uint64_t len = A[i].size();
+	void send_pt(Point *A, size_t num_pts = 1) {
+		for(size_t i = 0; i < num_pts; ++i) {
+			size_t len = A[i].size();
 			A[i].group->resize_scratch(len);
 			unsigned char * tmp = A[i].group->scratch;
 			send_data(&len, 4);
@@ -39,9 +39,9 @@ class IOChannel { public:
 		}
 	}
 
-	void recv_pt(Group * g, Point *A, uint64_t num_pts = 1) {
-		uint64_t len = 0;
-		for(uint64_t i = 0; i < num_pts; ++i) {
+	void recv_pt(Group * g, Point *A, size_t num_pts = 1) {
+		size_t len = 0;
+		for(size_t i = 0; i < num_pts; ++i) {
 			recv_data(&len, 4);
 			assert(len <= 2048);
 			g->resize_scratch(len);
@@ -51,36 +51,36 @@ class IOChannel { public:
 		}
 	}	
 
-	void send_bool(bool * data, uint64_t length) {
+	void send_bool(bool * data, size_t length) {
 		void * ptr = (void *)data;
 		size_t space = length;
 		const void * aligned = std::align(alignof(uint64_t), sizeof(uint64_t), ptr, space);
 		if(aligned == nullptr)
 			send_data(data, length);
 		else{
-			uint64_t diff = length - space;
+			size_t diff = length - space;
 			send_data(data, diff);
 			send_bool_aligned((const bool*)aligned, length - diff);
 		}
 	}
 
-	void recv_bool(bool * data, uint64_t length) {
+	void recv_bool(bool * data, size_t length) {
 		void * ptr = (void *)data;
 		size_t space = length;
 		void * aligned = std::align(alignof(uint64_t), sizeof(uint64_t), ptr, space);
 		if(aligned == nullptr)
 			recv_data(data, length);
 		else{
-			uint64_t diff = length - space;
+			size_t diff = length - space;
 			recv_data(data, diff);
 			recv_bool_aligned((bool*)aligned, length - diff);
 		}
 	}
 
 
-	void send_bool_aligned(const bool * data, uint64_t length) {
+	void send_bool_aligned(const bool * data, size_t length) {
 		const bool * data64 = data;
-		uint64_t i = 0;
+		size_t i = 0;
                 unsigned long long unpack;
 		for(; i < length/8; ++i) {
 			unsigned long long mask = 0x0101010101010101ULL;
@@ -101,9 +101,9 @@ class IOChannel { public:
 		if (8*i != length)
 			send_data(data + 8*i, length - 8*i);
 	}
-	void recv_bool_aligned(bool * data, uint64_t length) {
+	void recv_bool_aligned(bool * data, size_t length) {
 		bool * data64 = data;
-		uint64_t i = 0;
+		size_t i = 0;
                 unsigned long long unpack;
 		for(; i < length/8; ++i) {
 			unsigned long long mask = 0x0101010101010101ULL;

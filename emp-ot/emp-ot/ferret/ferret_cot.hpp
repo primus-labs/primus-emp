@@ -231,16 +231,13 @@ int64_t FerretCOT<T>::rcot_inplace(block *ot_buffer, int64_t byte_space) {
 	int64_t round = ot_output_n / ot_limit;
 	block *pt = ot_buffer;
 	for(int64_t i = 0; i < round; ++i) {
-		printf("rcot_inplace 1 round: %lld/%lld\n", i, round);
-		if(party == ALICE){
+		if(party == ALICE)
 		    pre_ot->send_pre(ot_pre_data, Delta);
-		}
 		else pre_ot->recv_pre(ot_pre_data);
 		extend(pt, mpcot, pre_ot, lpn_f2, ot_pre_data);
 		pt += ot_limit;
 		memcpy(ot_pre_data, pt, M*sizeof(block));
 	}
-	printf("rcot_inplace 2\n");
 	return ot_output_n;
 }
 

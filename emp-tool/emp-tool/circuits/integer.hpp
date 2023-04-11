@@ -164,16 +164,16 @@ inline Integer::Integer(T * input, int party) {
 inline Integer Integer::select(const Bit & select, const Integer & a) const{
 	assert(size() == a.size());
 	Integer res(*this);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res[i] = bits[i].select(select, a[i]);
 	return res;
 }
 
-inline Bit& Integer::operator[](uint64_t index) {
+inline Bit& Integer::operator[](size_t index) {
 	return bits[min(index, size()-1)];
 }
 
-inline const Bit &Integer::operator[](uint64_t index) const {
+inline const Bit &Integer::operator[](size_t index) const {
 	return bits[min(index, size()-1)];
 }
 
@@ -218,7 +218,7 @@ inline string Integer::reveal<string>(int party) const {
 	bool * b = new bool[size()];
 	string res = "";
 	revealBools(b, party);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res+=(b[i]? "1" : "0");
 	delete[] b;
 	return res;
@@ -234,19 +234,19 @@ inline void Integer::reveal(T * output, const int party) const {
 }
 
 
-inline uint64_t Integer::size() const {
+inline size_t Integer::size() const {
 	return bits.size();
 }
 
 //circuits
 inline Integer Integer::abs() const {
 	Integer res(*this);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res[i] = bits[size()-1];
 	return ( (*this) + res) ^ res;
 }
 
-inline Integer& Integer::resize(uint64_t len, bool signed_extend) {
+inline Integer& Integer::resize(size_t len, bool signed_extend) {
 	Bit MSB(false, PUBLIC); 
 	if(signed_extend)
 		MSB = bits[bits.size()-1];
@@ -257,35 +257,35 @@ inline Integer& Integer::resize(uint64_t len, bool signed_extend) {
 //Logical operations
 inline Integer Integer::operator^(const Integer& rhs) const {
 	Integer res(*this);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res.bits[i] = res.bits[i] ^ rhs.bits[i];
 	return res;
 }
 
 inline Integer Integer::operator^=(const Integer& rhs) {
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		this->bits[i] ^= rhs.bits[i];
 	return (*this);
 }
 
 inline Integer Integer::operator|(const Integer& rhs) const {
 	Integer res(*this);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res.bits[i] = res.bits[i] | rhs.bits[i];
 	return res;
 }
 
 inline Integer Integer::operator&(const Integer& rhs) const {
 	Integer res(*this);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res.bits[i] = res.bits[i] & rhs.bits[i];
 	return res;
 }
 
-inline Integer Integer::operator<<(uint64_t shamt) const {
+inline Integer Integer::operator<<(size_t shamt) const {
 	Integer res(*this);
 	if(shamt > size()) {
-		for(uint64_t i = 0; i < size(); ++i)
+		for(size_t i = 0; i < size(); ++i)
 			res.bits[i] = false;
 	}
 	else {
@@ -297,16 +297,16 @@ inline Integer Integer::operator<<(uint64_t shamt) const {
 	return res;
 }
 
-inline Integer Integer::operator>>(uint64_t shamt) const {
+inline Integer Integer::operator>>(size_t shamt) const {
 	Integer res(*this);
 	if(shamt >size()) {
-		for(uint64_t i = 0; i < size(); ++i)
+		for(size_t i = 0; i < size(); ++i)
 			res.bits[i] = false;
 	}
 	else {
-		for(uint64_t i = shamt; i < size(); ++i)
+		for(size_t i = shamt; i < size(); ++i)
 			res.bits[i-shamt] = bits[i];
-		for(uint64_t i = size()-shamt; i < size(); ++i)
+		for(size_t i = size()-shamt; i < size(); ++i)
 			res.bits[i] = false;
 	}
 	return res;
@@ -314,14 +314,14 @@ inline Integer Integer::operator>>(uint64_t shamt) const {
 
 inline Integer Integer::operator<<(const Integer& shamt) const {
 	Integer res(*this);
-	for(uint64_t i = 0; i < min(uint64_t(ceil(log2(size()))) , shamt.size()-1); ++i)
+	for(size_t i = 0; i < min(size_t(ceil(log2(size()))) , shamt.size()-1); ++i)
 		res = res.select(shamt[i], res<<(1<<i));
 	return res;
 }
 
 inline Integer Integer::operator>>(const Integer& shamt) const{
 	Integer res(*this);
-	for(uint64_t i = 0; i <min(uint64_t(ceil(log2(size()))) , shamt.size()-1); ++i)
+	for(size_t i = 0; i <min(size_t(ceil(log2(size()))) , shamt.size()-1); ++i)
 		res = res.select(shamt[i], res>>(1<<i));
 	return res;
 }
@@ -339,7 +339,7 @@ inline Bit Integer::geq (const Integer& rhs) const {
 inline Bit Integer::equal(const Integer& rhs) const {
 	assert(size() == rhs.size());
 	Bit res(true);
-	for(uint64_t i = 0; i < size(); ++i)
+	for(size_t i = 0; i < size(); ++i)
 		res = res & (bits[i] == rhs[i]);
 	return res;
 }
@@ -398,31 +398,31 @@ inline Integer Integer::leading_zeros() const {
 	for(int i = size() - 2; i>=0; --i)
 		res[i] = res[i+1] | res[i];
 
-	for(uint64_t i = 0; i < res.size(); ++i)
+	for(size_t i = 0; i < res.size(); ++i)
 		res[i] = !res[i];
 	return res.hamming_weight();
 }
 
 inline Integer Integer::hamming_weight() const {
 	vector<Integer> vec;
-	for(uint64_t i = 0; i < size(); i++) {
+	for(size_t i = 0; i < size(); i++) {
 		Integer tmp(2, 0, PUBLIC);
 		tmp[0] = bits[i];
 		vec.push_back(tmp);
 	}
 
 	while(vec.size() > 1) {
-		uint64_t j = 0;
-		for(uint64_t i = 0; i < vec.size()-1; i+=2) {
+		size_t j = 0;
+		for(size_t i = 0; i < vec.size()-1; i+=2) {
 			vec[j++] = vec[i]+vec[i+1];
 		}
 		if(vec.size()%2 == 1) {
 			vec[j++] = vec[vec.size()-1];
 		}
-		for(uint64_t i = 0; i < j; ++i)
+		for(size_t i = 0; i < j; ++i)
 			vec[i].resize(vec[i].size()+1, false);
-		uint64_t vec_size = vec.size();
-		for(uint64_t i = j; i < vec_size; ++i)
+		size_t vec_size = vec.size();
+		for(size_t i = j; i < vec_size; ++i)
 			vec.pop_back();
 	}
 	return vec[0];
@@ -431,7 +431,7 @@ inline Integer Integer::modExp(Integer p, Integer q) {
 	// the value of q should be less than half of the MAX_INT
 	Integer base = *this;
 	Integer res(size(),1);
-	for(uint64_t i = 0; i < p.size(); ++i) {
+	for(size_t i = 0; i < p.size(); ++i) {
 		Integer tmp = (res * base) % q;
 		res = res.select(p[i], tmp);
 		base = (base*base) % q; 

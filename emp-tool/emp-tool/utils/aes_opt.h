@@ -62,9 +62,9 @@ static inline void AES_opt_key_schedule(block* user_key, AES_KEY *keys) {
 template<int numKeys, int numEncs>
 static inline void ParaEnc(block *blks, AES_KEY *keys) {
 	block * first = blks;
-	for(uint64_t i = 0; i < numKeys; ++i) {
+	for(size_t i = 0; i < numKeys; ++i) {
 		block K = keys[i].rd_key[0];
-		for(uint64_t j = 0; j < numEncs; ++j) {
+		for(size_t j = 0; j < numEncs; ++j) {
 			*blks = *blks ^ K;
 			++blks;
 		}
@@ -72,9 +72,9 @@ static inline void ParaEnc(block *blks, AES_KEY *keys) {
 
 	for (unsigned int r = 1; r < 10; ++r) { 
 		blks = first;
-		for(uint64_t i = 0; i < numKeys; ++i) {
+		for(size_t i = 0; i < numKeys; ++i) {
 			block K = keys[i].rd_key[r];
-			for(uint64_t j = 0; j < numEncs; ++j) {
+			for(size_t j = 0; j < numEncs; ++j) {
 				*blks = _mm_aesenc_si128(*blks, K);
 				++blks;
 			}
@@ -82,9 +82,9 @@ static inline void ParaEnc(block *blks, AES_KEY *keys) {
 	}
 
 	blks = first;
-	for(uint64_t i = 0; i < numKeys; ++i) {
+	for(size_t i = 0; i < numKeys; ++i) {
 		block K = keys[i].rd_key[10];
-		for(uint64_t j = 0; j < numEncs; ++j) {
+		for(size_t j = 0; j < numEncs; ++j) {
 			*blks = _mm_aesenclast_si128(*blks, K);
 			++blks;
 		}
@@ -97,18 +97,18 @@ static inline void ParaEnc(block *_blks, AES_KEY *keys) {
 
 	for (unsigned int r = 0; r < 9; ++r) { 
 		auto blks = first;
-		for(uint64_t i = 0; i < numKeys; ++i) {
+		for(size_t i = 0; i < numKeys; ++i) {
 			uint8x16_t K = vreinterpretq_u8_m128i(keys[i].rd_key[r]);
-			for(uint64_t j = 0; j < numEncs; ++j, ++blks)
+			for(size_t j = 0; j < numEncs; ++j, ++blks)
 			   *blks = vaesmcq_u8(vaeseq_u8(*blks, K));
 		}
 	}
 	
 	auto blks = first;
-	for(uint64_t i = 0; i < numKeys; ++i) {
+	for(size_t i = 0; i < numKeys; ++i) {
 		uint8x16_t K = vreinterpretq_u8_m128i(keys[i].rd_key[9]);
 		uint8x16_t K2 = vreinterpretq_u8_m128i(keys[i].rd_key[10]);
-		for(uint64_t j = 0; j < numEncs; ++j, ++blks)
+		for(size_t j = 0; j < numEncs; ++j, ++blks)
 			*blks = vaeseq_u8(*blks, K) ^ K2;
 	}
 }

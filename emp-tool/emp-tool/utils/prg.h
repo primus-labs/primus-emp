@@ -27,7 +27,7 @@ class PRG { public:
 #ifndef ENABLE_RDSEED
 			uint32_t * data = (uint32_t *)(&v);
 			std::random_device rand_div("/dev/urandom");
-			for (uint64_t i = 0; i < sizeof(block) / sizeof(uint32_t); ++i)
+			for (size_t i = 0; i < sizeof(block) / sizeof(uint32_t); ++i)
 				data[i] = rand_div();
 #else
 			unsigned long long r0, r1;
@@ -103,7 +103,7 @@ class PRG { public:
 
 	typedef uint64_t result_type;
 	result_type buffer[32];
-	uint64_t ptr = 32;
+	size_t ptr = 32;
 	static constexpr result_type min() {
 		return 0;
 	}

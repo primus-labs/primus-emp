@@ -35,20 +35,20 @@ class Integer : public Swappable<Integer>, public Comparable<Integer> { public:
 	Integer operator^(const Integer& rhs) const;
 	Integer operator^=(const Integer& rhs);
 
-	uint64_t size() const;
+	size_t size() const;
 	template<typename T>
 		T reveal(int party=PUBLIC) const;
 	template<typename T>
 		void reveal(T * output, const int party=PUBLIC) const;
 
 	Integer abs() const;
-	Integer& resize(uint64_t length, bool signed_extend = true);
+	Integer& resize(size_t length, bool signed_extend = true);
 	Integer modExp(Integer p, Integer q);
 	Integer leading_zeros() const;
 	Integer hamming_weight() const;
 
-	Integer operator<<(uint64_t shamt)const;
-	Integer operator>>(uint64_t shamt)const;
+	Integer operator<<(size_t shamt)const;
+	Integer operator>>(size_t shamt)const;
 	Integer operator<<(const Integer& shamt)const;
 	Integer operator>>(const Integer& shamt)const;
 
@@ -61,8 +61,8 @@ class Integer : public Swappable<Integer>, public Comparable<Integer> { public:
 	Integer operator&(const Integer& rhs)const;
 	Integer operator|(const Integer& rhs)const;
 
-	Bit& operator[](uint64_t index);
-	const Bit & operator[](uint64_t index) const;	
+	Bit& operator[](size_t index);
+	const Bit & operator[](size_t index) const;	
 
 	void init(bool * b, int len, int party);
 	void revealBools(bool *bools, int party=PUBLIC) const;
