@@ -141,6 +141,7 @@ inline Integer::Integer(int len, int64_t input, int party) {
 	delete[] b;
 }
 
+/*ujnss typefix: for the caller, must ensure that T is a fixed size*/
 template<typename T>
 inline Integer::Integer(int len, T * input, int party) {
 	bool* b = new bool[len];
@@ -149,9 +150,10 @@ inline Integer::Integer(int len, T * input, int party) {
 	delete[] b;
 }
 
+/*ujnss typefix: for the caller, must ensure that T is a fixed size*/
 template<typename T>
 inline Integer::Integer(T * input, int party) {
-	size_t len = 8 * sizeof(T);
+	int len = 8 * sizeof(T); /*ujnss typefix: typeof(len) should be `int` according to `to_bool` */
 	bool* b = new bool[len];
 	to_bool<T>(b, input, len);
 	init(b, len, party);
@@ -185,7 +187,7 @@ inline uint32_t Integer::reveal<uint32_t>(int party) const {
 	bs.reset();
 	bool b[size()];
 	ProtocolExecution::prot_exec->reveal(b, party, (block *)bits.data(), size());
-	for (size_t i = 0; i < min(32UL, size()); ++i)
+	for (size_t i = 0; i < min((size_t)32, size()); ++i)
 		bs.set(i, b[i]);
 	return bs.to_ulong();
 }
@@ -196,7 +198,7 @@ inline uint64_t Integer::reveal<uint64_t>(int party) const {
 	bs.reset();
 	bool b[size()];
 	ProtocolExecution::prot_exec->reveal(b, party, (block *)bits.data(), size());
-	for (size_t i = 0; i < min(64UL, size()); ++i)
+	for (size_t i = 0; i < min((size_t)64, size()); ++i)
 		bs.set(i, b[i]);
 	return bs.to_ullong();
 }
