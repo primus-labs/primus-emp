@@ -72,7 +72,6 @@ class IKNP: public COT<T> { public:
 			G0[i].reseed(&k0[i]);
 			G1[i].reseed(&k1[i]);
 		}
-		memset(&Delta, 0, sizeof(Delta));
 	}
 	void send_pre(block * out, int64_t length) {
 		if(not setup)

@@ -78,10 +78,13 @@ class NetIO: public IOChannel<NetIO> { public:
 			}
 		}
 		set_nodelay();
+
+#ifndef __EMSCRIPTEN__
 		stream = fdopen(consocket, "wb+");
 		buffer = new char[NETWORK_BUFFER_SIZE];
 		memset(buffer, 0, NETWORK_BUFFER_SIZE);
 		setvbuf(stream, buffer, _IOFBF, NETWORK_BUFFER_SIZE);
+#endif
 		if(!quiet)
 			std::cout << "connected\n";
 	}
@@ -100,8 +103,10 @@ class NetIO: public IOChannel<NetIO> { public:
 
 	~NetIO(){
 		flush();
+#ifndef __EMSCRIPTEN__
 		fclose(stream);
 		delete[] buffer;
+#endif
 	}
 
 	void set_nodelay() {
@@ -115,13 +120,19 @@ class NetIO: public IOChannel<NetIO> { public:
 	}
 
 	void flush() {
+#ifndef __EMSCRIPTEN__
 		fflush(stream);
+#endif
 	}
 
 	void send_data_internal(const void * data, uint64_t len) {
 		uint64_t sent = 0;
 		while(sent < len) {
-			uint64_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
+#ifndef __EMSCRIPTEN__
+			int64_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
+#else
+      int64_t res = send(consocket, sent + (char*)data, len - sent, 0);
+#endif
 			if (res > 0)
 				sent+=res;
 			else
@@ -131,12 +142,18 @@ class NetIO: public IOChannel<NetIO> { public:
 	}
 
 	void recv_data_internal(void  * data, uint64_t len) {
+#ifndef __EMSCRIPTEN__
 		if(has_sent)
 			fflush(stream);
+#endif
 		has_sent = false;
 		uint64_t sent = 0;
 		while(sent < len) {
-			uint64_t res = fread(sent + (char*)data, 1, len - sent, stream);
+#ifndef __EMSCRIPTEN__
+			int64_t res = fread(sent + (char*)data, 1, len - sent, stream);
+#else
+      int64_t res = recv(consocket, sent + (char*)data, len - sent, 0);
+#endif
 			if (res > 0)
 				sent += res;
 			else

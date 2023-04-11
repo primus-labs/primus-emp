@@ -32,6 +32,7 @@ class MemIO: public IOChannel<MemIO> { public:
 	void clear() {
 		size = 0;
 	}
+	void flush() {}
 	void send_data_internal(const void * data, int64_t len) {
 		if(size + len >= cap){
 			char * new_buffer = new char[2*(cap+len)];
