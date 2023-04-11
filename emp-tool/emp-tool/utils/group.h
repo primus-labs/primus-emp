@@ -40,9 +40,9 @@ class Point {
 		Point(const Point & p);
 		Point& operator=(Point p);
 
-		void to_bin(unsigned char * buf, uint64_t buf_len);
-		uint64_t size();
-		void from_bin(Group * g, const unsigned char * buf, uint64_t buf_len);
+		void to_bin(unsigned char * buf, size_t buf_len);
+		size_t size();
+		void from_bin(Group * g, const unsigned char * buf, size_t buf_len);
 
 		Point add(Point & rhs);
 //		Point sub(Point & rhs);
@@ -58,10 +58,10 @@ class Group { public:
 	BN_CTX * bn_ctx = nullptr;
 	BigInt order;
 	unsigned char * scratch;
-	uint64_t scratch_size = 256;
+	size_t scratch_size = 256;
 	Group();
 	~Group();
-	void resize_scratch(uint64_t size);
+	void resize_scratch(size_t size);
 	void get_rand_bn(BigInt & n);
 	Point get_generator();
 	Point mul_gen(const BigInt &m);

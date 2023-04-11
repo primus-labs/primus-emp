@@ -125,13 +125,13 @@ class NetIO: public IOChannel<NetIO> { public:
 #endif
 	}
 
-	void send_data_internal(const void * data, uint64_t len) {
-		uint64_t sent = 0;
+	void send_data_internal(const void * data, size_t len) {
+		size_t sent = 0;
 		while(sent < len) {
 #ifndef __EMSCRIPTEN__
-			int64_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
+			ssize_t res = fwrite(sent + (char*)data, 1, len - sent, stream);
 #else
-      int64_t res = send(consocket, sent + (char*)data, len - sent, 0);
+      ssize_t res = send(consocket, sent + (char*)data, len - sent, 0);
 #endif
 			if (res > 0)
 				sent+=res;
@@ -141,18 +141,18 @@ class NetIO: public IOChannel<NetIO> { public:
 		has_sent = true;
 	}
 
-	void recv_data_internal(void  * data, uint64_t len) {
+	void recv_data_internal(void  * data, size_t len) {
 #ifndef __EMSCRIPTEN__
 		if(has_sent)
 			fflush(stream);
 #endif
 		has_sent = false;
-		uint64_t sent = 0;
+		size_t sent = 0;
 		while(sent < len) {
 #ifndef __EMSCRIPTEN__
-			int64_t res = fread(sent + (char*)data, 1, len - sent, stream);
+			ssize_t res = fread(sent + (char*)data, 1, len - sent, stream);
 #else
-      int64_t res = recv(consocket, sent + (char*)data, len - sent, 0);
+      ssize_t res = recv(consocket, sent + (char*)data, len - sent, 0);
 #endif
 			if (res > 0)
 				sent += res;
