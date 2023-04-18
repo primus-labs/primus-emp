@@ -36,8 +36,8 @@ dst[127] := 0
 #include <inttypes.h>
 // typedef unsigned __int128 uint128_t;
 
-// static int _my_mm_clmulepi64_si128_helper(uint8_t dst[16], uint8_t TEMP1[8], uint8_t TEMP2[8])
-static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t *TEMP2)
+// static int ___mm_clmulepi64_si128_helper(uint8_t dst[16], uint8_t TEMP1[8], uint8_t TEMP2[8])
+static int ___mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t *TEMP2)
 {
   // from low to high
   // printf("%x %x\n", TEMP1[7], TEMP2[7]);
@@ -160,7 +160,7 @@ static int _my_mm_clmulepi64_si128_helper(uint8_t *dst, uint8_t *TEMP1, uint8_t 
   return 0;
 }
 
-static void _my_mm_clmulepi64_si128(uint8_t *c, uint8_t *a, uint8_t *b, int imm8)
+static void ___mm_clmulepi64_si128(uint8_t *c, uint8_t *a, uint8_t *b, int imm8)
 {
   uint8_t *temp1 = NULL, *temp2 = NULL;
   switch (imm8)
@@ -192,7 +192,7 @@ static void _my_mm_clmulepi64_si128(uint8_t *c, uint8_t *a, uint8_t *b, int imm8
   }
   else
   {
-    _my_mm_clmulepi64_si128_helper(c, temp1, temp2);
+    ___mm_clmulepi64_si128_helper(c, temp1, temp2);
   }
 }
 
