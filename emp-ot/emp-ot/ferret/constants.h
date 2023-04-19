@@ -2,8 +2,8 @@
 #define EMP_FERRET_CONSTANTS_H__
 
 namespace emp { 
-static std::string PRE_OT_DATA_REG_SEND_FILE = "./data/pre_ot_data_reg_send";
-static std::string PRE_OT_DATA_REG_RECV_FILE = "./data/pre_ot_data_reg_recv";
+static std::string PRE_OT_DATA_REG_SEND_FILE = "./data/pre_ot_data_reg_send_%d";
+static std::string PRE_OT_DATA_REG_RECV_FILE = "./data/pre_ot_data_reg_recv_%d";
 
 class PrimalLPNParameter { public:
 	int64_t n, t, k, log_bin_sz, n_pre, t_pre, k_pre, log_bin_sz_pre;

@@ -6,13 +6,19 @@ using std::vector;
 using std::string;
 
 class CheatRecord { public:
-	static vector<string> message;
+#ifndef THREADING
+	static vector<string> *message;
+#else
+	static __thread vector<string> *message;
+#endif
 	static void reset() {
-		message.clear();
+		delete message;
+		message = new vector<string>();
+		message->clear();
 	}
 	static void put(const string &s);
 	static bool cheated() {
-		return !message.empty();
+		return !message->empty();
 	}
 };
 #endif
