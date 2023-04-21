@@ -91,10 +91,7 @@ template<typename T>
 void FerretCOT<T>::setup(std::string pre_file) {
 	if(pre_file != "") pre_ot_filename = pre_file;
 	else {
-		char buf[256];
-		sprintf(buf, party==ALICE?PRE_OT_DATA_REG_SEND_FILE.c_str():PRE_OT_DATA_REG_RECV_FILE.c_str(), std::this_thread::get_id());
-		//pre_ot_filename=(party==ALICE?PRE_OT_DATA_REG_SEND_FILE:PRE_OT_DATA_REG_RECV_FILE);
-		pre_ot_filename = string(buf);
+		pre_ot_filename=(party==ALICE?PRE_OT_DATA_REG_SEND_FILE:PRE_OT_DATA_REG_RECV_FILE);
 	}
 
 	ThreadPool pool2(1);

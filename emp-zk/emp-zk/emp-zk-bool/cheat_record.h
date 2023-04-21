@@ -12,7 +12,6 @@ class CheatRecord { public:
 	static __thread vector<string> *message;
 #endif
 	static void reset() {
-		delete message;
 		message = new vector<string>();
 		message->clear();
 	}
