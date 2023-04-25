@@ -7,17 +7,30 @@ using std::string;
 
 class CheatRecord { public:
 #ifndef THREADING
-	static vector<string> *message;
+	static vector<string> message;
 #else
 	static __thread vector<string> *message;
 #endif
 	static void reset() {
-		message = new vector<string>();
+#ifndef THREADING
+		message.clear();
+#else
+		if (message == nullptr)
+		    message = new vector<string>();
 		message->clear();
+#endif
 	}
 	static void put(const string &s);
 	static bool cheated() {
-		return !message->empty();
+#ifndef THREADING
+		return !message.empty();
+#else
+		bool res = !message->empty();
+		delete message;
+		message = nullptr;
+
+		return res;
+#endif
 	}
 };
 #endif
