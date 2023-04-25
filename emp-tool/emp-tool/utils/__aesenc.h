@@ -1,7 +1,7 @@
 
 /*
  * 1. according to crypto/aes/aes_core.c
- * 2. add my_ for solving conflicts
+ * 2. add _ for solving conflicts
 */
 
 #ifndef __AES_CORE_H
@@ -14,10 +14,10 @@
 
 # define AES_MAXNR 14
 # define AES_BLOCK_SIZE 16
-# define MY_USE_MEMCPY 0
+# define AESENC_USE_MEMCPY 0
 
 /* This should be a hidden type, but EVP requires that the size be known */
-struct my_aes_key_st {
+struct __aes_key_st {
 # ifdef AES_LONG
     unsigned long rd_key[4 * (AES_MAXNR + 1)];
 # else
@@ -25,7 +25,7 @@ struct my_aes_key_st {
 # endif
     int rounds;
 };
-typedef struct my_aes_key_st MY_AES_KEY;
+typedef struct __aes_key_st __AES_KEY;
 
 
 typedef uint32_t u32;
@@ -504,7 +504,7 @@ static void InvMixColumns(u64 *state)
     }
 }
 
-static void _my_mm_aesimc_si128(u64 *state)
+static void ___mm_aesimc_si128(u64 *state)
 {
     InvMixColumns(state);
 }
@@ -541,10 +541,10 @@ static void Cipher(const unsigned char *in, unsigned char *out,
     memcpy(out, state, 16);
 }
 
-static void _my_mm_aesenc_si128(const unsigned char *in, unsigned char *out,
+static void ___mm_aesenc_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 {
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     u64 state[2];
 #else
     u64* state = (u64*)out;
@@ -557,15 +557,15 @@ static void _my_mm_aesenc_si128(const unsigned char *in, unsigned char *out,
     MixColumns(state);
     AddRoundKey(state, key);
 
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     memcpy(out, state, 16);
 #endif
 }
 
-static void _my_mm_aesenclast_si128(const unsigned char *in, unsigned char *out,
+static void ___mm_aesenclast_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 {
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     u64 state[2];
 #else
     u64* state = (u64*)out;
@@ -577,7 +577,7 @@ static void _my_mm_aesenclast_si128(const unsigned char *in, unsigned char *out,
     ShiftRows(state);
     AddRoundKey(state, key);
 
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     memcpy(out, state, 16);
 #endif
 }
@@ -657,11 +657,11 @@ static void InvCipher(const unsigned char *in, unsigned char *out,
 }
 
 
-static void _my_mm_aesdec_si128(const unsigned char *in, unsigned char *out,
+static void ___mm_aesdec_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 
 {
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     u64 state[2];
 #else
     u64* state = (u64*)out;
@@ -688,7 +688,7 @@ static void _my_mm_aesdec_si128(const unsigned char *in, unsigned char *out,
     AddRoundKey(state, key);
 
 
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     memcpy(out, state, 16);
 #endif
     
@@ -700,11 +700,11 @@ static void _my_mm_aesdec_si128(const unsigned char *in, unsigned char *out,
     // }
 }
 
-static void _my_mm_aesdeclast_si128(const unsigned char *in, unsigned char *out,
+static void ___mm_aesdeclast_si128(const unsigned char *in, unsigned char *out,
                    const u64 *key)
 
 {
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     u64 state[2];
 #else
     u64* state = (u64*)out;
@@ -716,7 +716,7 @@ static void _my_mm_aesdeclast_si128(const unsigned char *in, unsigned char *out,
     InvSubLong(&state[1]);
     AddRoundKey(state, key);
 
-#if MY_USE_MEMCPY
+#if AESENC_USE_MEMCPY
     memcpy(out, state, 16);
 #endif
 }
@@ -766,8 +766,8 @@ static void KeyExpansion(const unsigned char *key, u64 *w,
 /**
  * Expand the cipher key into the encryption key schedule.
  */
-static int my_AES_set_encrypt_key(const unsigned char *userKey, const int bits,
-                        MY_AES_KEY *key)
+static int __AES_set_encrypt_key(const unsigned char *userKey, const int bits,
+                        __AES_KEY *key)
 {
     u64 *rk;
 
@@ -794,7 +794,7 @@ static int my_AES_set_encrypt_key(const unsigned char *userKey, const int bits,
 // rk: (u64*)key->rd_key
 // nr: rounds
 // nk: bits/32
-static void _my_KeyExpansion(const unsigned char *userKey, u64 *rk, int nr, int nk)
+static void ___KeyExpansion(const unsigned char *userKey, u64 *rk, int nr, int nk)
 {
     KeyExpansion(userKey, rk, nr, nk);
 }
@@ -803,18 +803,18 @@ static void _my_KeyExpansion(const unsigned char *userKey, u64 *rk, int nr, int 
 /**
  * Expand the cipher key into the decryption key schedule.
  */
-static int my_AES_set_decrypt_key(const unsigned char *userKey, const int bits,
-                        MY_AES_KEY *key)
+static int __AES_set_decrypt_key(const unsigned char *userKey, const int bits,
+                        __AES_KEY *key)
 {
-    return my_AES_set_encrypt_key(userKey, bits, key);
+    return __AES_set_encrypt_key(userKey, bits, key);
 }
 
 /*
  * Encrypt a single block
  * in and out can overlap
  */
-static void my_AES_encrypt(const unsigned char *in, unsigned char *out,
-                 const MY_AES_KEY *key)
+static void __AES_encrypt(const unsigned char *in, unsigned char *out,
+                 const __AES_KEY *key)
 {
     const u64 *rk;
 
@@ -828,8 +828,8 @@ static void my_AES_encrypt(const unsigned char *in, unsigned char *out,
  * Decrypt a single block
  * in and out can overlap
  */
-static void my_AES_decrypt(const unsigned char *in, unsigned char *out,
-                 const MY_AES_KEY *key)
+static void __AES_decrypt(const unsigned char *in, unsigned char *out,
+                 const __AES_KEY *key)
 {
     const u64 *rk;
 
