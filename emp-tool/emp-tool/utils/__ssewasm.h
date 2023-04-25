@@ -22,7 +22,7 @@
   __op(__m128i __V, __m128i __R)                              \
   {                                                           \
     __m128i __O;                                              \
-    _my##__op((uint8_t *)&__V, (uint8_t *)&__O, (u64 *)&__R); \
+    __##__op((uint8_t *)&__V, (uint8_t *)&__O, (u64 *)&__R); \
     return __O;                                               \
   }
 
@@ -34,7 +34,7 @@ make_mm_aes_op(_mm_aesdeclast_si128);
 static __inline__ __m128i _mm_aesimc_si128(__m128i __V)
 {
   __m128i out = __V;
-  _my_mm_aesimc_si128((u64 *)&out);
+  ___mm_aesimc_si128((u64 *)&out);
   return out;
 }
 
@@ -43,13 +43,13 @@ static __inline__ void _mm_aeskeygenassist(__m128i __V, __m128i *__R, int nr, in
 {
   // __V: userKey
   // __R: rd_key
-  _my_KeyExpansion((unsigned char *)&__V, (u64 *)__R, nr, nk);
+  ___KeyExpansion((unsigned char *)&__V, (u64 *)__R, nr, nk);
 }
 
 static __inline__ __m128i _mm_clmulepi64_si128(__m128i __X, __m128i __Y, const int __I)
 {
   __m128i out;
-  _my_mm_clmulepi64_si128((uint8_t *)&out, (uint8_t *)&__X, (uint8_t *)&__Y, __I);
+  ___mm_clmulepi64_si128((uint8_t *)&out, (uint8_t *)&__X, (uint8_t *)&__Y, __I);
   return out;
 }
 
