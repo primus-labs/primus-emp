@@ -38,7 +38,6 @@ template<typename IO>
 inline bool finalize_zk_bool() {
 	delete CircuitExecution::circ_exec;
 	delete ProtocolExecution::prot_exec;
-	delete CheatRecord::message;
 	return CheatRecord::cheated();
 }
 
