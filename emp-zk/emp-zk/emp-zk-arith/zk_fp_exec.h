@@ -11,7 +11,12 @@ public:
 	__uint128_t pub_mac;
 	int B, c;
 
-	static ZKFpExec *zk_exec;
+#ifndef THREADING
+    static ZKFpExec *zk_exec;
+#else
+    static __thread ZKFpExec *zk_exec;
+#endif
+
 
 	ZKFpExec() {}
 	virtual ~ZKFpExec() {}

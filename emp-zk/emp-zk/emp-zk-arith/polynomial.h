@@ -8,7 +8,11 @@
 template<typename IO>
 class FpPolyProof {
 public:
+#ifndef THREADING
 	static FpPolyProof<IO> *fppolyproof;
+#else
+	static __thread FpPolyProof<IO> *fppolyproof;
+#endif
 	int party;
 	IO *io;
 	uint64_t delta;
@@ -152,6 +156,11 @@ public:
 	}
 
 };
+#ifndef THREADING
 template<typename IO>
 FpPolyProof<IO>* FpPolyProof<IO>::fppolyproof = nullptr;
+#else
+template<typename IO>
+__thread FpPolyProof<IO>* FpPolyProof<IO>::fppolyproof = nullptr;
+#endif
 #endif
