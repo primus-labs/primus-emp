@@ -10,7 +10,11 @@
 template<typename IO>
 class EdaBits {
 public:
-	static EdaBits<IO> *conv;
+#ifndef THREADING
+    static EdaBits<IO> *conv;
+#else
+    static __thread EdaBits<IO> *conv;
+#endif
 	int party;
 	IO **ios;
 
@@ -341,6 +345,11 @@ public:
 		return _mm_extract_epi64((block)in, 1);
 	}
 };
+#ifndef THREADING
 template<typename IO>
 EdaBits<IO>* EdaBits<IO>::conv = nullptr;
+#else
+template<typename IO>
+__thread EdaBits<IO>* EdaBits<IO>::conv = nullptr;
+#endif
 #endif
