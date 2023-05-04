@@ -13,9 +13,9 @@ class IOChannel { public:
 	void send_data(const void * data, size_t nbyte) {
 		counter +=nbyte;
 		derived().send_data_internal(data, nbyte);
-#ifdef __EMSCRIPTEN__
-		derived().flush();
-#endif
+// #ifdef __EMSCRIPTEN__
+// 		derived().flush();
+// #endif
 	}
 
 	void recv_data(void * data, size_t nbyte) {
