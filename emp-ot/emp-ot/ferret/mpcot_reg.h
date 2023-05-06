@@ -69,10 +69,14 @@ public:
 
 		if(party == ALICE) {
 			mpcot_init_sender(senders, ot);
+			auto t_start = emp::clock_start();
 			exec_parallel_sender(senders, ot, sparse_vector);
+			printf("MpcotReg in mpcot(exec_parallel_sender) time:%.6f us\n", emp::time_from(t_start));
 		} else {
 			mpcot_init_recver(recvers, ot);
+			auto t_start = emp::clock_start();
 			exec_parallel_recver(recvers, ot, sparse_vector);
+			printf("MpcotReg in mpcot(exec_parallel_recver) time:%.6f us\n", emp::time_from(t_start));
 		}
 
 		if(is_malicious)

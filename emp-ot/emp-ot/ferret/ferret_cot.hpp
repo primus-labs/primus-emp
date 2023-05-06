@@ -62,8 +62,14 @@ void FerretCOT<T>::extend(block* ot_output, MpcotReg<T> *mpcot, OTPre<T> *preot,
 		LpnF2<T, 10> *lpn, block *ot_input) {
 	if(party == ALICE) mpcot->sender_init(Delta);
 	else mpcot->recver_init();
+
+	auto t_start = emp::clock_start();
 	mpcot->mpcot(ot_output, preot, ot_input);
+	printf("FerretCOT in extend(mpcot->mpcot) time:%.6f us\n", emp::time_from(t_start));
+
+	t_start = emp::clock_start();
 	lpn->compute(ot_output, ot_input+mpcot->consist_check_cot_num);
+	printf("FerretCOT in extend(lpn->compute) time:%.6f us\n", emp::time_from(t_start));
 }
 
 // extend f2k (customized location)
@@ -169,13 +175,14 @@ void FerretCOT<T>::rcot(block *data, int64_t num) {
 		memcpy(pt, ot_data, ot_limit*sizeof(block));
 		pt += ot_limit;
 	}
-	printf("FerretCOT rcot 7 %ld (this takes long...)\n",last_round_ot);
+	printf("FerretCOT extend_f2k last_round_ot:%ld (this takes long...)\n", last_round_ot);
+	auto t_start = emp::clock_start();
 	if(last_round_ot > 0) {
 		extend_f2k();
 		memcpy(pt, ot_data, last_round_ot*sizeof(block));
 		ot_used = last_round_ot;
 	}
-	printf("FerretCOT rcot 8\n");
+	printf("FerretCOT extend_f2k time:%.6f us\n", emp::time_from(t_start));
 }
 
 template<typename T>
