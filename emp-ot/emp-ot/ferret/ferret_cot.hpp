@@ -65,11 +65,9 @@ void FerretCOT<T>::extend(block* ot_output, MpcotReg<T> *mpcot, OTPre<T> *preot,
 
 	auto t_start = emp::clock_start();
 	mpcot->mpcot(ot_output, preot, ot_input);
-	printf("FerretCOT in extend(mpcot->mpcot) time:%.6f us\n", emp::time_from(t_start));
 
 	t_start = emp::clock_start();
 	lpn->compute(ot_output, ot_input+mpcot->consist_check_cot_num);
-	printf("FerretCOT in extend(lpn->compute) time:%.6f us\n", emp::time_from(t_start));
 }
 
 // extend f2k (customized location)
