@@ -42,7 +42,6 @@ emp-tool/circuits/float32_ln.cpp
 emp-tool/circuits/float32_log2.cpp
 
 emp-tool/utils/__aesenc.cpp
-emp-tool/utils/__clmul.cpp
 )
 
 IF(${CRYPTO_IN_CIRCUIT})
