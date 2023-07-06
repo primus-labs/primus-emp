@@ -67,13 +67,17 @@ public:
 	}	
 
 	~OSTriple () {
-		if(check_cnt!=0) {
-			andgate_correctness_check_manage();
+		if(emp::runtime_errno==0){
+			if(check_cnt!=0) {
+				andgate_correctness_check_manage();
+			}
+			if(!auth_helper->finalize()){
+				CheatRecord::put("emp-zk-bool finalize");
+			}
+			if(ferret_state != nullptr){
+				ferret->assemble_state(ferret_state, 10400000);
+			}
 		}
-		if(!auth_helper->finalize())
-			CheatRecord::put("emp-zk-bool finalize");
-		if(ferret_state != nullptr)
-			ferret->assemble_state(ferret_state, 10400000);
 		delete ferret;
 		delete[] andgate_out_buffer;
 		delete[] andgate_left_buffer;
