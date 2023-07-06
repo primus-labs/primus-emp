@@ -54,9 +54,11 @@ public:
 	}
 
 	~FpOSTriple () {
-		if(check_cnt != 0) 
-			andgate_correctness_check_manage();
-		auth_helper->flush();
+		if(emp::runtime_errno==0){
+			if(check_cnt != 0) 
+				andgate_correctness_check_manage();
+			auth_helper->flush();
+		}
 		delete auth_helper;
 		delete vole;
 		delete[] andgate_out_buffer;

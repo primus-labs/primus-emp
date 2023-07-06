@@ -57,8 +57,10 @@ public:
 	~F2kOSTriple () {
 		delete polyprdt;
 		delete svole;
-		if(andgate_buf_not_empty()) {
-			andgate_correctness_check_manage();
+		if(emp::runtime_errno==0){
+			if(andgate_buf_not_empty()) {
+				andgate_correctness_check_manage();
+			}
 		}
 		delete[] auth_buffer_val;
 		delete[] auth_buffer_mac;

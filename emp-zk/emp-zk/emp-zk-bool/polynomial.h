@@ -33,7 +33,9 @@ public:
 	}
 
 	~PolyProof() {
-		batch_check();
+		if(emp::runtime_errno==0){
+			batch_check();
+		}
 		if(buffer != nullptr) delete[] buffer;
 		if(buffer1 != nullptr) delete[] buffer1;
 	}

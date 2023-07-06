@@ -19,7 +19,9 @@ class BoolIO: public IOChannel<BoolIO<IO>> { public:
 		else ptr = NETWORK_BUFFER_SIZE2;
 	}
 	~BoolIO() {
-		this->flush();
+		if(emp::runtime_errno==0){
+			this->flush();
+		}
 		delete[] buf;
 	}
 	void flush() {

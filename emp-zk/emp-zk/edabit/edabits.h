@@ -69,8 +69,10 @@ public:
 	}
 
 	~EdaBits() {
-		if(!auth_helper->triple_equality_check())
-			error("cut and choose fails");
+		if(emp::runtime_errno==0){
+			if(!auth_helper->triple_equality_check())
+				error("cut and choose fails");
+		}
 		if(bool_candidate != nullptr) delete[] bool_candidate;
 		if(arith_candidate != nullptr) delete[] arith_candidate;
 		if(auth_helper != nullptr) delete auth_helper;

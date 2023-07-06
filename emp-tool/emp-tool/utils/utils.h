@@ -14,6 +14,11 @@ using std::chrono::time_point;
 using std::chrono::high_resolution_clock;
 
 namespace emp {
+#ifndef THREADING
+extern int runtime_errno;
+#else
+extern __thread int runtime_errno;
+#endif
 template<typename T>
 void inline delete_array_null(T * ptr);
 

@@ -38,7 +38,9 @@ public:
 	}
 
 	~F2kPolyPrdt() {
-		batch_check();
+		if(emp::runtime_errno==0){
+			batch_check();
+		}
 		if(buffer0 != nullptr) delete[] buffer0;
 		if(buffer1 != nullptr) delete[] buffer1;
 		if(buffer2 != nullptr) delete[] buffer2;
