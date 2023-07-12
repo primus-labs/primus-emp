@@ -25,6 +25,8 @@ class CheatRecord { public:
 #ifndef THREADING
 		return !message.empty();
 #else
+		if(message==nullptr) return false;
+
 		bool res = !message->empty();
 		delete message;
 		message = nullptr;
