@@ -196,7 +196,7 @@ template<>
 inline uint64_t Integer::reveal<uint64_t>(int party) const {
 	std::bitset<64> bs;
 	bs.reset();
-	bool b[size()];
+	bool b[size()] = {false};
 	ProtocolExecution::prot_exec->reveal(b, party, (block *)bits.data(), size());
 	for (size_t i = 0; i < min((size_t)64, size()); ++i)
 		bs.set(i, b[i]);
