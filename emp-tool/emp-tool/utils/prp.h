@@ -29,11 +29,15 @@ class PRP { public:
 	}
 
 	void permute_block(block *data, int nblocks) {
+#if __EMSCRIPTEN__
+		AES_ecb_encrypt_blks(data, nblocks, &aes);
+#else
 		for(int i = 0; i < nblocks/AES_BATCH_SIZE; ++i) {
 			AES_ecb_encrypt_blks<AES_BATCH_SIZE>(data + i*AES_BATCH_SIZE, &aes);
 		}
 		int remain = nblocks % AES_BATCH_SIZE;
 		AES_ecb_encrypt_blks(data + nblocks - remain, remain, &aes);
+#endif
 	}
 };
 }
