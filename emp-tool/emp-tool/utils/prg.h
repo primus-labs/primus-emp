@@ -87,6 +87,19 @@ class PRG { public:
 	}
 
 	void random_block(block * data, int nblocks=1) {
+#if __EMSCRIPTEN__
+#if 1 // rm copy
+		for (int j = 0; j < nblocks; ++j)
+			data[j] = makeBlock(0LL, counter++);
+		AES_ecb_encrypt_blks(data, nblocks, &aes);
+#else
+		block tmp[nblocks];
+		for (int j = 0; j < nblocks; ++j)
+			tmp[j] = makeBlock(0LL, counter++);
+		AES_ecb_encrypt_blks(tmp, nblocks, &aes);
+		memcpy(data, tmp, nblocks*sizeof(block));
+#endif
+#else
 		block tmp[AES_BATCH_SIZE];
 		for(int i = 0; i < nblocks/AES_BATCH_SIZE; ++i) {
 			for (int j = 0; j < AES_BATCH_SIZE; ++j)
@@ -99,6 +112,7 @@ class PRG { public:
 			tmp[j] = makeBlock(0LL, counter++);
 		AES_ecb_encrypt_blks(tmp, remain, &aes);
 		memcpy(data + (nblocks/AES_BATCH_SIZE)*AES_BATCH_SIZE, tmp, remain*sizeof(block));
+#endif
 	}
 
 	typedef uint64_t result_type;
