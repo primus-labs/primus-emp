@@ -88,17 +88,11 @@ class PRG { public:
 
 	void random_block(block * data, int nblocks=1) {
 #if __EMSCRIPTEN__
-#if 1 // rm copy
-		for (int j = 0; j < nblocks; ++j)
-			data[j] = makeBlock(0LL, counter++);
-		AES_ecb_encrypt_blks(data, nblocks, &aes);
-#else
 		block tmp[nblocks];
 		for (int j = 0; j < nblocks; ++j)
 			tmp[j] = makeBlock(0LL, counter++);
 		AES_ecb_encrypt_blks(tmp, nblocks, &aes);
 		memcpy(data, tmp, nblocks*sizeof(block));
-#endif
 #else
 		block tmp[AES_BATCH_SIZE];
 		for(int i = 0; i < nblocks/AES_BATCH_SIZE; ++i) {
@@ -107,11 +101,25 @@ class PRG { public:
 			AES_ecb_encrypt_blks<AES_BATCH_SIZE>(tmp, &aes);
 			memcpy(data + i*AES_BATCH_SIZE, tmp, AES_BATCH_SIZE*sizeof(block));
 		}
+
 		int remain = nblocks % AES_BATCH_SIZE;
-		for (int j = 0; j < remain; ++j)
-			tmp[j] = makeBlock(0LL, counter++);
-		AES_ecb_encrypt_blks(tmp, remain, &aes);
-		memcpy(data + (nblocks/AES_BATCH_SIZE)*AES_BATCH_SIZE, tmp, remain*sizeof(block));
+		if (remain > 0) {
+			for (int j = 0; j < remain; ++j)
+				tmp[j] = makeBlock(0LL, counter++);
+	#define encrypt_some(n)                                                        \
+		if (remain == n) {                                                           \
+			AES_ecb_encrypt_blks<n>(tmp, &aes);                                        \
+		}
+			encrypt_some(1);
+			encrypt_some(2);
+			encrypt_some(3);
+			encrypt_some(4);
+			encrypt_some(5);
+			encrypt_some(6);
+			encrypt_some(7);
+	#undef encrypt_some
+			memcpy(data + (nblocks/AES_BATCH_SIZE)*AES_BATCH_SIZE, tmp, remain*sizeof(block));
+		}
 #endif
 	}
 
