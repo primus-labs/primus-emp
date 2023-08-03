@@ -11,6 +11,27 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <map>
+
+#define __AES_PERFORMANCE_DEBUG__ 0
+#if __EMSCRIPTEN__
+extern int64_t _mm_aesenc_si128_counter;
+extern int64_t _mm_aesenclast_si128_counter;
+extern int64_t _mm_aesdec_si128_counter;
+extern int64_t _mm_aesdeclast_si128_counter;
+extern int64_t _mm_clmulepi64_si128_counter;
+extern std::map<int64_t, int64_t> map_aesencrypt_counter;
+void _aes_counter_add(int64_t &counter);
+void _aes_counter_print(bool reset);
+
+#if __AES_PERFORMANCE_DEBUG__
+#define aes_counter_add(x) _aes_counter_add(x)
+#define aes_counter_print(x) _aes_counter_print(x)
+#else
+#define aes_counter_add(x) (void)0
+#define aes_counter_print(x) (void)0
+#endif
+#endif
 
 # define AES_MAXNR 14
 # define AES_BLOCK_SIZE 16

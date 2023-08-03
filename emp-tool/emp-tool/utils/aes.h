@@ -147,6 +147,11 @@ inline void AES_ecb_encrypt_blks(block *_blks, unsigned int nblks, const AES_KEY
 #elif __EMSCRIPTEN__
 __attribute__((target("simd128")))
 inline void AES_ecb_encrypt_blks(block *blks, unsigned int nblks, const AES_KEY *key) {
+#if __AES_PERFORMANCE_DEBUG__
+    if(map_aesencrypt_counter.find(nblks)==map_aesencrypt_counter.end())
+        map_aesencrypt_counter[nblks] = 0;
+    map_aesencrypt_counter[nblks]++;
+#endif
 #if USE_OPENSSL_AESECBENCRYPT
     _AES_ecb_encrypt_blks((unsigned char*)blks, nblks, (const unsigned char*)key);
 #else // same as __x86_64__
