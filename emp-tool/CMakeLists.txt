@@ -42,8 +42,9 @@ emp-tool/circuits/float32_ln.cpp
 emp-tool/circuits/float32_log2.cpp
 
 emp-tool/utils/__aesenc.cpp
-emp-tool/utils/_bsaes.c
-emp-tool/utils/_stable.c
+# can not work on arm
+# emp-tool/utils/_bsaes.c
+# emp-tool/utils/_stable.c
 )
 
 IF(${CRYPTO_IN_CIRCUIT})
