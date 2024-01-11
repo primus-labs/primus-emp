@@ -130,7 +130,7 @@ public:
 		andgate_right_buffer[check_cnt] = b;
 
 		if(party == ALICE) {
-			bool s = getLSB(a) & getLSB(b);
+			bool s = getLSB(a) && getLSB(b);
 			bool d = s ^ getLSB(auth);
 			set_value_in_block(auth, s);
 			io->send_bit(d);
