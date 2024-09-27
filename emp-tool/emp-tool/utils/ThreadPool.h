@@ -88,10 +88,12 @@ inline ThreadPool::ThreadPool(size_t threads)
                         task();
                     }
                     catch (std::exception& e) {
+                        std::unique_lock<std::mutex> lock(this->queue_mutex);
                         this->exceptionMsg = string(e.what());
                         this->stop = true;
                     }
                     catch(...) {
+                        std::unique_lock<std::mutex> lock(this->queue_mutex);
                         this->exceptionMsg = "unknown exception";
                         this->stop = true;
                     }
@@ -136,5 +138,13 @@ inline ThreadPool::~ThreadPool()
     for(std::thread &worker: workers)
         worker.join();
 }
+
+#define CHECK_THREAD_POOL_EXCEPTION(pool)                 \
+do {                                                      \
+    string exceptionMsg = pool->getExceptionMsg();        \
+    if (!exceptionMsg.empty()) {                          \
+        throw std::runtime_error(exceptionMsg);           \
+    }                                                     \
+} while (0)
 
 #endif

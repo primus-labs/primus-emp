@@ -80,10 +80,7 @@ class LpnF2 { public:
 
 		for (auto &f: fut) f.get();
 		// check pool executation exception
-		string exceptionMsg = pool->getExceptionMsg();
-		if (!exceptionMsg.empty()) {
-			throw std::runtime_error(exceptionMsg);
-		}
+		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}
 
@@ -114,10 +111,7 @@ class LpnF2 { public:
 
 		for (auto &f: fut) f.get();
 		// check pool executation exception
-		string exceptionMsg = pool->getExceptionMsg();
-		if (!exceptionMsg.empty()) {
-			throw std::runtime_error(exceptionMsg);
-		}
+		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}
 

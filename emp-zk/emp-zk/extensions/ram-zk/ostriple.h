@@ -222,10 +222,7 @@ public:
 		for(auto &f : fut) f.get();
 
 		// check pool executation exception
-		string exceptionMsg = pool->getExceptionMsg();
-		if (!exceptionMsg.empty()) {
-			throw std::runtime_error(exceptionMsg);
-		}
+		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 		block ope_data[128];
 		ferret->rcot(ope_data, 128);
