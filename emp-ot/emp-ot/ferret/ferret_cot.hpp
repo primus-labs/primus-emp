@@ -138,6 +138,12 @@ void FerretCOT<T>::setup(std::string pre_file) {
 	}
 
 	fut.get();
+	// check pool executation exception
+	string exceptionMsg = pool->getExceptionMsg();
+	if (!exceptionMsg.empty()) {
+		throw std::runtime_error(exceptionMsg);
+	}
+
 }
 
 template<typename T>

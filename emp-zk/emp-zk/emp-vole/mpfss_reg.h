@@ -135,6 +135,12 @@ public:
 		}
 		for (auto & f : fut) f.get();
 
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 		if(is_malicious) {
 			block *seed = new block[threads];
 			seed_expand(seed, threads);
@@ -163,6 +169,12 @@ public:
 			}
 			for (auto & f : fut) f.get();
 			delete[] seed;
+			// check pool executation exception
+			string exceptionMsg = pool->getExceptionMsg();
+			if (!exceptionMsg.empty()) {
+				throw std::runtime_error(exceptionMsg);
+			}
+
 		}
 
 		if(is_malicious) {

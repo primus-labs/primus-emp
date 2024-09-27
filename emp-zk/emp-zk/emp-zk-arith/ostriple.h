@@ -206,6 +206,12 @@ public:
 
 			for(auto &f : fut) f.get();
 
+			// check pool executation exception
+			string exceptionMsg = pool->getExceptionMsg();
+			if (!exceptionMsg.empty()) {
+				throw std::runtime_error(exceptionMsg);
+			}
+
 			delete[] share_seed;
 			if(party == ALICE) {
 				for(int i = 0; i < threads; ++i) {

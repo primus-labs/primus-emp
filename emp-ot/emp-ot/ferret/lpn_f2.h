@@ -79,6 +79,12 @@ class LpnF2 { public:
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 	block seed_gen() {
@@ -107,6 +113,12 @@ class LpnF2 { public:
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 };
