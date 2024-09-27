@@ -43,6 +43,9 @@ public:
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
 	int size() const;
+	string getExceptionMsg() const {
+	    return exceptionMsg;
+	}
 private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
@@ -53,6 +56,7 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
+    string exceptionMsg;
 };
  
 int inline ThreadPool::size() const {
@@ -80,7 +84,17 @@ inline ThreadPool::ThreadPool(size_t threads)
                         this->tasks.pop();
                     }
 
-                    task();
+                    try {
+                        task();
+                    }
+                    catch (std::exception& e) {
+                        this->exceptionMsg = string(e.what());
+                        this->stop = true;
+                    }
+                    catch(...) {
+                        this->exceptionMsg = "unknown exception";
+                        this->stop = true;
+                    }
                 }
             }
         );

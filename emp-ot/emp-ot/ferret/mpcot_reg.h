@@ -124,6 +124,12 @@ public:
 			exec_f2k_sender(senders[i], ot, sparse_vector+i*leave_n, 
 					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 	void exec_parallel_recver(vector<SPCOT_Recver<IO>*> &recvers,
@@ -146,6 +152,12 @@ public:
 			exec_f2k_recver(recvers[i], ot, sparse_vector+i*leave_n, 
 					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 	void exec_f2k_sender(SPCOT_Sender<IO> *sender, OTPre<IO> *ot, 

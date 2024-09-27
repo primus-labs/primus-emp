@@ -106,6 +106,12 @@ class LpnF2k { public:
 		task(start, end);
 
 		for (auto &f: fut) f.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 	void compute_send(const block *preV, block *V, const block *preM, block *M) {

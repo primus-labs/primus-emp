@@ -148,6 +148,12 @@ public:
 		}
 		for (auto & f : fut) f.get();
 
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 		if(is_malicious) {
 			if(party == ALICE)
 				consistency_batch_check(triple_yz[tree_n], tree_n);

@@ -205,6 +205,12 @@ public:
 		delete[] pre_yz0;
 
 		fut.get();
+		// check pool executation exception
+		string exceptionMsg = pool->getExceptionMsg();
+		if (!exceptionMsg.empty()) {
+			throw std::runtime_error(exceptionMsg);
+		}
+
 	}
 
 	void extend(__uint128_t *data_yz, int num) {
