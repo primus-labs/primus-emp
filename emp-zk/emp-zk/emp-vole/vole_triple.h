@@ -205,6 +205,9 @@ public:
 		delete[] pre_yz0;
 
 		fut.get();
+		// check pool executation exception
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 	void extend(__uint128_t *data_yz, int num) {
