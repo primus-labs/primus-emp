@@ -79,9 +79,6 @@ class LpnF2 { public:
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 	}
 
 	block seed_gen() {
@@ -110,9 +107,6 @@ class LpnF2 { public:
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 	}
 
 };

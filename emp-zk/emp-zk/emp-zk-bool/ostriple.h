@@ -169,9 +169,6 @@ public:
 
 		for(auto &f : fut) f.get();
 
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 		if(party == ALICE) {
 			block ope_data[128];
 			ferret->rcot(ope_data, 128);
