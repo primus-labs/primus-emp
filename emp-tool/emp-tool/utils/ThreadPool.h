@@ -35,6 +35,7 @@ freely, subject to the following restrictions:
 #include <functional>
 #include <stdexcept>
 
+
 class ThreadPool {
 public:
     ThreadPool(size_t);
@@ -42,7 +43,21 @@ public:
     auto enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
-	int size() const;
+    int size() const;
+    void stopWithReason(const string& reason) {
+        std::unique_lock<std::mutex> lock(queue_mutex);
+        stop = true;
+        condition.notify_all();
+        exceptionMsg = reason;
+    }
+    string getExceptionMsg() {
+        return exceptionMsg;
+    }
+    void waitStop() {
+        for(std::thread &worker: workers)
+            worker.join();
+        hasJoined = true;
+    }
 private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
@@ -52,11 +67,44 @@ private:
     // synchronization
     std::mutex queue_mutex;
     std::condition_variable condition;
-    bool stop;
+    bool stop = false;
+    string exceptionMsg;
+    bool hasJoined = false;
 };
+
+#define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
+    if (!pool->getExceptionMsg().empty()) {                  \
+        pool->waitStop();                                    \
+        throw std::runtime_error(pool->getExceptionMsg());   \
+    }
  
+extern "C" void FunctionSafeRun(void *wrapper);
+
+struct FunctionWrapper {
+    public:
+    FunctionWrapper(std::function<void()> f, ThreadPool* p) {
+        fn = f;
+        pool = p;
+    }
+    void operator()() {
+        FunctionSafeRun(this);
+    }
+
+    void execute() {
+        fn();
+    }
+
+    ThreadPool* getPool() {
+        return pool;
+    }
+
+    private:
+    std::function<void()> fn;
+    ThreadPool* pool;
+};
+
 int inline ThreadPool::size() const {
-	return workers.size();
+    return workers.size();
 }
 // the constructor just launches some amount of workers
 inline ThreadPool::ThreadPool(size_t threads)
@@ -74,8 +122,10 @@ inline ThreadPool::ThreadPool(size_t threads)
                         std::unique_lock<std::mutex> lock(this->queue_mutex);
                         this->condition.wait(lock,
                             [this]{ return this->stop || !this->tasks.empty(); });
-                        if(this->stop && this->tasks.empty())
+                        if(this->stop && this->tasks.empty()) {
+                            printf("worker exit\n");
                             return;
+                        }
                         task = std::move(this->tasks.front());
                         this->tasks.pop();
                     }
@@ -102,7 +152,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
         std::unique_lock<std::mutex> lock(queue_mutex);
 
         // don't allow enqueueing after stopping the pool
-        if(stop)
+        if(exceptionMsg.empty() && stop)
             throw std::runtime_error("enqueue on stopped ThreadPool");
 
         tasks.emplace([task](){ (*task)(); });
@@ -114,6 +164,9 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 // the destructor joins all threads
 inline ThreadPool::~ThreadPool()
 {
+    if (hasJoined) {
+        return;
+    }
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
         stop = true;
@@ -121,6 +174,7 @@ inline ThreadPool::~ThreadPool()
     condition.notify_all();
     for(std::thread &worker: workers)
         worker.join();
+    hasJoined = true;
 }
 
 #endif
