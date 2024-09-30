@@ -106,9 +106,6 @@ class LpnF2k { public:
 		task(start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 	}
 
 	void compute_send(const block *preV, block *V, const block *preM, block *M) {

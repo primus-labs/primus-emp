@@ -135,9 +135,6 @@ public:
 		}
 		for (auto & f : fut) f.get();
 
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 		if(is_malicious) {
 			block *seed = new block[threads];
 			seed_expand(seed, threads);
@@ -166,9 +163,6 @@ public:
 			}
 			for (auto & f : fut) f.get();
 			delete[] seed;
-			// check pool executation exception
-			CHECK_THREAD_POOL_EXCEPTION(pool);
-
 		}
 
 		if(is_malicious) {

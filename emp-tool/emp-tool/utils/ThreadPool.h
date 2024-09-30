@@ -42,21 +42,7 @@ public:
     auto enqueue(F&& f, Args&&... args) 
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
-    int size() const;
-    void stopWithReason(const string& reason) {
-        std::unique_lock<std::mutex> lock(this->queue_mutex);
-        this->exceptionMsg = reason;
-        this->stop = true;
-        condition.notify_all();
-    }
-    void waitStop() {
-        for(std::thread &worker: workers)
-            worker.join();
-    }
-    string getExceptionMsg() const {
-        return exceptionMsg;
-    }
-    void runInLoop();
+	int size() const;
 private:
     // need to keep track of threads so we can join them
     std::vector< std::thread > workers;
@@ -67,13 +53,10 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop;
-    string exceptionMsg;
 };
  
-extern "C" void ThreadPoolSafeRun(ThreadPool* pool);
-
 int inline ThreadPool::size() const {
-    return workers.size();
+	return workers.size();
 }
 // the constructor just launches some amount of workers
 inline ThreadPool::ThreadPool(size_t threads)
@@ -83,28 +66,24 @@ inline ThreadPool::ThreadPool(size_t threads)
         workers.emplace_back(
             [this]
             {
-                ThreadPoolSafeRun(this);
+                for(;;)
+                {
+                    std::function<void()> task;
+
+                    {
+                        std::unique_lock<std::mutex> lock(this->queue_mutex);
+                        this->condition.wait(lock,
+                            [this]{ return this->stop || !this->tasks.empty(); });
+                        if(this->stop && this->tasks.empty())
+                            return;
+                        task = std::move(this->tasks.front());
+                        this->tasks.pop();
+                    }
+
+                    task();
+                }
             }
         );
-}
-
-inline void ThreadPool::runInLoop() {
-    for(;;)
-    {
-        std::function<void()> task;
-
-        {
-            std::unique_lock<std::mutex> lock(this->queue_mutex);
-            this->condition.wait(lock,
-                [this]{ return this->stop || !this->tasks.empty(); });
-            if(this->stop && this->tasks.empty())
-                return;
-            task = std::move(this->tasks.front());
-            this->tasks.pop();
-        }
-
-        task();
-    }
 }
 
 // add new work item to the pool
@@ -143,14 +122,5 @@ inline ThreadPool::~ThreadPool()
     for(std::thread &worker: workers)
         worker.join();
 }
-
-#define CHECK_THREAD_POOL_EXCEPTION(pool)                 \
-do {                                                      \
-    string exceptionMsg = pool->getExceptionMsg();        \
-    if (!exceptionMsg.empty()) {                          \
-        pool->waitStop();                                 \
-        throw std::runtime_error(exceptionMsg);           \
-    }                                                     \
-} while (0)
 
 #endif

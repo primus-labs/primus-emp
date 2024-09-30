@@ -206,9 +206,6 @@ public:
 
 			for(auto &f : fut) f.get();
 
-			// check pool executation exception
-			CHECK_THREAD_POOL_EXCEPTION(pool);
-
 			delete[] share_seed;
 			if(party == ALICE) {
 				for(int i = 0; i < threads; ++i) {

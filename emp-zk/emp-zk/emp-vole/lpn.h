@@ -172,9 +172,6 @@ class LpnFp { public:
 		task(start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
-		CHECK_THREAD_POOL_EXCEPTION(pool);
-
 	}
 
 	void compute_send(__uint128_t *K, const __uint128_t *kkK) {
