@@ -46,17 +46,19 @@ public:
     int size() const;
     void stopWithReason(const string& reason) {
         std::unique_lock<std::mutex> lock(queue_mutex);
-        stop = true;
-        condition.notify_all();
         exceptionMsg = reason;
     }
     string getExceptionMsg() {
         return exceptionMsg;
     }
     void waitStop() {
+        {
+            std::unique_lock<std::mutex> lock(queue_mutex);
+            stop = true;
+            condition.notify_all();
+        }
         for(std::thread &worker: workers)
             worker.join();
-        hasJoined = true;
     }
 private:
     // need to keep track of threads so we can join them
@@ -69,7 +71,6 @@ private:
     std::condition_variable condition;
     bool stop = false;
     string exceptionMsg;
-    bool hasJoined = false;
 };
 
 #define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
@@ -164,7 +165,7 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 // the destructor joins all threads
 inline ThreadPool::~ThreadPool()
 {
-    if (hasJoined) {
+    if (stop) {
         return;
     }
     {
@@ -174,7 +175,6 @@ inline ThreadPool::~ThreadPool()
     condition.notify_all();
     for(std::thread &worker: workers)
         worker.join();
-    hasJoined = true;
 }
 
 #endif
