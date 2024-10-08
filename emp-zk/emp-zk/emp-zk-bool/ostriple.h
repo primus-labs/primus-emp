@@ -159,22 +159,15 @@ public:
 		uint32_t leftover = task_base + (check_cnt % task_base);
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
+		for(int i = 0; i < threads - 1; ++i) {
+			fut.push_back(pool->enqueue([this, sum, i, start, task_base, share_seed](){
+				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
+						}));
+			start += task_base;
+		}
+		andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
 
-        for(int i = 0; i < threads - 1; ++i) {
-            std::function<void()> fn = [this, sum, i, start, task_base, share_seed](){
-                throw std::runtime_error("[PadoNetworkError]andgate correctness check error");
-                andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
-                        };
-            fut.push_back(pool->enqueue(FunctionWrapper(fn, pool)));
-            start += task_base;
-        }
-        andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
-
-        printf("begin f.get1\n");
-        for(auto &f : fut) f.get();
-        printf("begin f.get2\n");
-        CHECK_THREAD_POOL_EXCEPTION(pool);
-        printf("begin f.get3\n");
+		for(auto &f : fut) f.get();
 
 		if(party == ALICE) {
 			block ope_data[128];
