@@ -65,8 +65,8 @@ private:
 };
 
 #define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
-    if (!pool->getExceptionMsg().empty()) {                  \
-        throw std::runtime_error(pool->getExceptionMsg());   \
+    if (!(pool)->getExceptionMsg().empty()) {                \
+        throw std::runtime_error((pool)->getExceptionMsg()); \
     }
  
 extern "C" void FunctionSafeRun(void *wrapper);
@@ -123,6 +123,7 @@ inline ThreadPool::ThreadPool(size_t threads)
                 }
             }
         );
+
 }
 
 // add new work item to the pool

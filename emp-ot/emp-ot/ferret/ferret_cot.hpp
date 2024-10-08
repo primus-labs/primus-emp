@@ -104,7 +104,7 @@ void FerretCOT<T>::setup(std::string pre_file) {
 	ThreadPool pool2(1);
 	auto fut = pool2.enqueue(FunctionWrapper([this](){
 		extend_initialization();
-	}, pool));
+	}, &pool2));
 
 	ot_pre_data = new block[param.n_pre];
 	bool hasfile = file_exists(pre_ot_filename), hasfile2;
@@ -139,7 +139,7 @@ void FerretCOT<T>::setup(std::string pre_file) {
 
 	fut.get();
 
-	CHECK_THREAD_POOL_EXCEPTION(pool);
+	CHECK_THREAD_POOL_EXCEPTION(&pool2);
 
 }
 
