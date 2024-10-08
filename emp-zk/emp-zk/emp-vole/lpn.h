@@ -163,15 +163,18 @@ class LpnFp { public:
 		for(int i = 0; i < threads; ++i) {
 			int start = i * width;
 			int end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, start, end]() {
+			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end]() {
 				task(start, end);
-			}));
+			}, pool)));
 		}
 		int start = threads * width;
 		int end = min( (threads+1) * width, n);
 		task(start, end);
 
 		for (auto &f: fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 	void compute_send(__uint128_t *K, const __uint128_t *kkK) {

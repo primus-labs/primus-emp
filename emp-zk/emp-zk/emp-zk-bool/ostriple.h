@@ -160,14 +160,16 @@ public:
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
 		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, sum, i, start, task_base, share_seed](){
+			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_base, share_seed](){
 				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
-						}));
+						}, pool)));
 			start += task_base;
 		}
 		andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
 
 		for(auto &f : fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 		if(party == ALICE) {
 			block ope_data[128];

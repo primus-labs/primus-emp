@@ -101,7 +101,7 @@ public:
 		uint32_t width = tree_n / threads;
 		uint32_t start = 0, end = width;
 		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, start, end, width, senders, recvers, ot, sparse_vector](){
+			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, ot, sparse_vector](){
 				for (auto i = start; i < end; ++i) {
 					if(party == ALICE) {
 						ggm_tree[i] = sparse_vector+i*leave_n;
@@ -115,7 +115,7 @@ public:
 						ios[start/width]->flush();
 					}
 				}
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
@@ -135,13 +135,16 @@ public:
 		}
 		for (auto & f : fut) f.get();
 
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
+
 		if(is_malicious) {
 			block *seed = new block[threads];
 			seed_expand(seed, threads);
 			vector<future<void>> fut;
 			uint32_t start = 0, end = width;
 			for(int i = 0; i < threads - 1; ++i) {
-				fut.push_back(pool->enqueue([this, start, end, width, senders, recvers, seed](){
+				fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, seed](){
 					for (auto i = start; i < end; ++i) {
 						if(party == ALICE) {
 							senders[i]->consistency_check_msg_gen(check_VW_buf[i], ios[start/width], seed[start/width]);
@@ -149,7 +152,7 @@ public:
 							recvers[i]->consistency_check_msg_gen(check_chialpha_buf[i], check_VW_buf[i], ios[start/width], triple_yz[i], seed[start/width]);
 						}
 					}
-				}));
+				}, pool)));
 				start = end;
 				end += width;
 			}
@@ -162,6 +165,9 @@ public:
 				}
 			}
 			for (auto & f : fut) f.get();
+
+			CHECK_THREAD_POOL_EXCEPTION(pool);
+
 			delete[] seed;
 		}
 

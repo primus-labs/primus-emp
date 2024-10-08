@@ -197,14 +197,17 @@ public:
 			uint64_t *sum = new uint64_t[2*threads];
 
 			for(int i = 0; i < threads - 1; ++i) {
-				fut.push_back(pool->enqueue([this, sum, i, start, task_base, share_seed](){
+				fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_base, share_seed](){
 					andgate_correctness_check(sum, i, start, task_base, share_seed);
-							}));
+							}, pool)));
 				start += task_base;
 			}
 			andgate_correctness_check(sum, threads - 1, start, leftover, share_seed);
 
 			for(auto &f : fut) f.get();
+
+			CHECK_THREAD_POOL_EXCEPTION(pool);
+
 
 			delete[] share_seed;
 			if(party == ALICE) {

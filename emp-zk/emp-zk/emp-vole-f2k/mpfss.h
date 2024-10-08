@@ -110,7 +110,7 @@ public:
 		uint32_t width = tree_n / threads;
 		uint32_t start = 0, end = width;
 		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, start, end, width, senders, recvers, ot, sparse_vector](){
+			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, ot, sparse_vector](){
 				for (auto i = start; i < end; ++i) {
 					if(party == ALICE) {
 						ggm_tree[i] = sparse_vector+i*leave_n;
@@ -126,7 +126,7 @@ public:
 						ios[start/width]->flush();
 					}
 				}
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
@@ -147,6 +147,9 @@ public:
 			}
 		}
 		for (auto & f : fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 
 		if(is_malicious) {
 			if(party == ALICE)

@@ -70,15 +70,18 @@ class LpnF2 { public:
 		for(int i = 0; i < threads - 1; ++i) {
 			int64_t start = i * width;
 			int64_t end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, nn, kk, start, end]() {
+			fut.push_back(pool->enqueue(FunctionWrapper([this, nn, kk, start, end]() {
 				task(nn, kk, start, end);
-			}));
+			}, pool)));
 		}
 		int64_t start = (threads - 1) * width;
         	int64_t end = n;
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 	block seed_gen() {
@@ -98,15 +101,18 @@ class LpnF2 { public:
 		for(int i = 0; i < threads - 1; ++i) {
 			int64_t start = i * width;
 			int64_t end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, nn, kk, start, end]() {
+			fut.push_back(pool->enqueue(FunctionWrapper([this, nn, kk, start, end]() {
 				task(nn, kk, start, end);
-			}));
+			}, pool)));
 		}
 		int64_t start = (threads - 1) * width;
         	int64_t end = n;
 		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 };
