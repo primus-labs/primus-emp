@@ -110,12 +110,12 @@ public:
 		int width = tree_n / threads;
 		int start = 0, end = width;
 		for(int i = 0; i < threads - 1; ++i) {	
-			fut.push_back(this->pool->enqueue([this, start, end, width, 
+			fut.push_back(this->pool->enqueue(FunctionWrapper([this, start, end, width, 
 						senders, ot, sparse_vector](){
 				for(int i = start; i < end; ++i)
 					exec_f2k_sender(senders[i], ot, sparse_vector+i*leave_n, 
 							ios[start/width], i);
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
@@ -124,6 +124,9 @@ public:
 			exec_f2k_sender(senders[i], ot, sparse_vector+i*leave_n, 
 					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 	void exec_parallel_recver(vector<SPCOT_Recver<IO>*> &recvers,
@@ -132,12 +135,12 @@ public:
 		int width = tree_n / threads;
 		int start = 0, end = width;
 		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(this->pool->enqueue([this, start, end, width, 
+			fut.push_back(this->pool->enqueue(FunctionWrapper([this, start, end, width, 
 						recvers, ot, sparse_vector](){
 				for(int i = start; i < end; ++i)
 					exec_f2k_recver(recvers[i], ot, sparse_vector+i*leave_n, 
 							ios[start/width], i);
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
@@ -146,6 +149,9 @@ public:
 			exec_f2k_recver(recvers[i], ot, sparse_vector+i*leave_n, 
 					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
+
+		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 	}
 
 	void exec_f2k_sender(SPCOT_Sender<IO> *sender, OTPre<IO> *ot, 
