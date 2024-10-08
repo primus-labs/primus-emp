@@ -20,12 +20,10 @@ void FunctionSafeRun(void *wrapper) {
         fnWrapper->execute();
     }
     catch (std::exception& e) {
-        printf("stopwithreason:%s\n", e.what());
-        pool->stopWithReason(e.what());
+        pool->setStopReason(e.what());
     }
     catch (...) {
-        printf("stopwithreason:%s\n", "unknown reason");
-        pool->stopWithReason("[OtherError]unknown reason");
+        pool->setStopReason("[OtherError]unknown reason");
     }
 
 }
