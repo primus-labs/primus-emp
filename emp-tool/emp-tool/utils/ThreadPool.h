@@ -44,21 +44,12 @@ public:
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
     int size() const;
-    void stopWithReason(const string& reason) {
+    void setStopReason(const string& reason) {
         std::unique_lock<std::mutex> lock(queue_mutex);
         exceptionMsg = reason;
     }
     string getExceptionMsg() {
         return exceptionMsg;
-    }
-    void waitStop() {
-        {
-            std::unique_lock<std::mutex> lock(queue_mutex);
-            stop = true;
-            condition.notify_all();
-        }
-        for(std::thread &worker: workers)
-            worker.join();
     }
 private:
     // need to keep track of threads so we can join them
@@ -75,7 +66,6 @@ private:
 
 #define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
     if (!pool->getExceptionMsg().empty()) {                  \
-        pool->waitStop();                                    \
         throw std::runtime_error(pool->getExceptionMsg());   \
     }
  
@@ -123,10 +113,8 @@ inline ThreadPool::ThreadPool(size_t threads)
                         std::unique_lock<std::mutex> lock(this->queue_mutex);
                         this->condition.wait(lock,
                             [this]{ return this->stop || !this->tasks.empty(); });
-                        if(this->stop && this->tasks.empty()) {
-                            printf("worker exit\n");
+                        if(this->stop && this->tasks.empty())
                             return;
-                        }
                         task = std::move(this->tasks.front());
                         this->tasks.pop();
                     }
@@ -165,9 +153,6 @@ auto ThreadPool::enqueue(F&& f, Args&&... args)
 // the destructor joins all threads
 inline ThreadPool::~ThreadPool()
 {
-    if (stop) {
-        return;
-    }
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
         stop = true;
