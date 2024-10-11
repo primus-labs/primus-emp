@@ -66,18 +66,21 @@ public:
 		if(party == BOB) auth_helper->set_delta(this->delta);
 	}	
 
-	~OSTriple () {
-		if(emp::runtime_errno==0){
-			if(check_cnt!=0) {
-				andgate_correctness_check_manage();
-			}
-			if(!auth_helper->finalize()){
-				CheatRecord::put("emp-zk-bool finalize");
-			}
-			if(ferret_state != nullptr){
-				ferret->assemble_state(ferret_state, 10400000);
-			}
+	void finalizeIO() {
+		if(check_cnt!=0) {
+			andgate_correctness_check_manage();
 		}
+		if(!auth_helper->finalize()){
+			CheatRecord::put("emp-zk-bool finalize");
+		}
+		if(ferret_state != nullptr){
+			ferret->assemble_state(ferret_state, 10400000);
+		}
+	}
+
+	~OSTriple () {
+		SAFE_FINALIZE_IO();
+
 		delete ferret;
 		delete[] andgate_out_buffer;
 		delete[] andgate_left_buffer;
@@ -161,6 +164,7 @@ public:
 		block *sum = new block[2*threads];
 		for(int i = 0; i < threads - 1; ++i) {
 			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_base, share_seed](){
+				// throw std::runtime_error("[PadoNetworkError]andgate correctness check error");
 				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
 						}, pool)));
 			start += task_base;

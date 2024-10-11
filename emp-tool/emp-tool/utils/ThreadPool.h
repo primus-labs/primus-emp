@@ -65,11 +65,6 @@ private:
     std::string exceptionMsg;
 };
 
-#define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
-    if (!(pool)->getExceptionMsg().empty()) {                \
-        throw std::runtime_error((pool)->getExceptionMsg()); \
-    }
- 
 
 int inline ThreadPool::size() const {
     return workers.size();

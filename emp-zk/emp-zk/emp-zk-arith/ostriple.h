@@ -53,12 +53,15 @@ public:
 		auth_helper = new FpAuthHelper<IO>(party, io);
 	}
 
+    void finalizeIO() {
+		if(check_cnt != 0) 
+			andgate_correctness_check_manage();
+		auth_helper->flush();
+	}
+
 	~FpOSTriple () {
-		if(emp::runtime_errno==0){
-			if(check_cnt != 0) 
-				andgate_correctness_check_manage();
-			auth_helper->flush();
-		}
+		SAFE_FINALIZE_IO();
+
 		delete auth_helper;
 		delete vole;
 		delete[] andgate_out_buffer;
