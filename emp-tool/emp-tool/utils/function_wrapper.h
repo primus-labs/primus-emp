@@ -87,3 +87,16 @@ struct FunctionWrapperV2: public AbstractFunctionWrapper {
     FunctionWrapperV2([this]() {            \
         this->finalizeIO();                 \
     })()
+
+#define CHECK_FINALIZE_IO_EXCEPTION()                                           \
+    do {                                                                        \
+        string exceptionMsg = FunctionWrapperV2::getExceptionMsgOnce();         \
+        if (!exceptionMsg.empty()) {                                            \
+            throw std::runtime_error(exceptionMsg);                             \
+        }                                                                       \
+    } while(false)
+
+#define SET_FINALIZE_IO_EXCEPTION(exceptionMsg)                                 \
+    do {                                                                        \
+        FunctionWrapperV2([](){}).catchException(exceptionMsg);                 \
+    } while(false);
