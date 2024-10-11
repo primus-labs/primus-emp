@@ -54,14 +54,18 @@ public:
 		pre_f2k_buffer_refill();
 	}
 
+    void finailzeIO() {
+		if(andgate_buf_not_empty()) {
+			andgate_correctness_check_manage();
+		}
+	}
+
 	~F2kOSTriple () {
 		delete polyprdt;
 		delete svole;
-		if(emp::runtime_errno==0){
-			if(andgate_buf_not_empty()) {
-				andgate_correctness_check_manage();
-			}
-		}
+
+		SAFE_FINALIZE_IO();
+
 		delete[] auth_buffer_val;
 		delete[] auth_buffer_mac;
 		delete[] andgate_buffer_left_val;

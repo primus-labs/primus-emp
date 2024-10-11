@@ -37,10 +37,13 @@ public:
 		num = 0;
 	}
 
+	void finalizeIO() {
+		batch_check();
+	}
+
 	~F2kPolyPrdt() {
-		if(emp::runtime_errno==0){
-			batch_check();
-		}
+		SAFE_FINALIZE_IO();
+
 		if(buffer0 != nullptr) delete[] buffer0;
 		if(buffer1 != nullptr) delete[] buffer1;
 		if(buffer2 != nullptr) delete[] buffer2;

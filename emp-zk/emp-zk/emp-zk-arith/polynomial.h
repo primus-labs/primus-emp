@@ -36,10 +36,13 @@ public:
 		num = 0;
 	}
 
+    void finailzeIO() {
+		batch_check();
+	}
+
 	~FpPolyProof() {
-		if(emp::runtime_errno==0){
-			batch_check();
-		}
+		SAFE_FINALIZE_IO();
+
 		if(buffer != nullptr) delete[] buffer;
 		if(buffer1 != nullptr) delete[] buffer1;
 	}
