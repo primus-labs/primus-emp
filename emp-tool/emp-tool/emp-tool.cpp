@@ -13,17 +13,3 @@ __thread emp::CircuitExecution* emp::CircuitExecution::circ_exec = nullptr;
 __thread int emp::runtime_errno = 0;
 #endif
 
-void FunctionSafeRun(void *wrapper) {
-    FunctionWrapper* fnWrapper = (FunctionWrapper*)wrapper;
-    ThreadPool* pool = fnWrapper->getPool();
-    try {
-        fnWrapper->execute();
-    }
-    catch (std::exception& e) {
-        pool->setStopReason(e.what());
-    }
-    catch (...) {
-        pool->setStopReason("[OtherError]unknown reason");
-    }
-
-}

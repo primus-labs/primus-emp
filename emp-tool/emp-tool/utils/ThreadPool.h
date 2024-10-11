@@ -34,6 +34,7 @@ freely, subject to the following restrictions:
 #include <future>
 #include <functional>
 #include <stdexcept>
+#include <string>
 
 
 class ThreadPool {
@@ -44,11 +45,11 @@ public:
         -> std::future<typename std::result_of<F(Args...)>::type>;
     ~ThreadPool();
     int size() const;
-    void setStopReason(const string& reason) {
+    void setStopReason(const std::string& reason) {
         std::unique_lock<std::mutex> lock(queue_mutex);
         exceptionMsg = reason;
     }
-    string getExceptionMsg() {
+    std::string getExceptionMsg() {
         return exceptionMsg;
     }
 private:
@@ -61,7 +62,7 @@ private:
     std::mutex queue_mutex;
     std::condition_variable condition;
     bool stop = false;
-    string exceptionMsg;
+    std::string exceptionMsg;
 };
 
 #define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
@@ -69,30 +70,6 @@ private:
         throw std::runtime_error((pool)->getExceptionMsg()); \
     }
  
-extern "C" void FunctionSafeRun(void *wrapper);
-
-struct FunctionWrapper {
-    public:
-    FunctionWrapper(std::function<void()> f, ThreadPool* p) {
-        fn = f;
-        pool = p;
-    }
-    void operator()() {
-        FunctionSafeRun(this);
-    }
-
-    void execute() {
-        fn();
-    }
-
-    ThreadPool* getPool() {
-        return pool;
-    }
-
-    private:
-    std::function<void()> fn;
-    ThreadPool* pool;
-};
 
 int inline ThreadPool::size() const {
     return workers.size();
