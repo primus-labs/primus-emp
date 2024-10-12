@@ -78,6 +78,30 @@ struct FunctionWrapperV2: public AbstractFunctionWrapper {
 #endif
 };
 
+struct FunctionWrapperV3: public AbstractFunctionWrapper {
+    public:
+    FunctionWrapperV3(std::function<void()> tryFn, std::function<void(const char*)> catchFn) {
+        this->tryFn = tryFn;
+        this->catchFn = catchFn;
+    }
+
+    void operator()() {
+        FunctionSafeRun(this);
+    }
+
+    void execute() override {
+        tryFn();
+    }
+
+    void catchException(const char* exceptionMsg) override {
+        catchFn(exceptionMsg);
+    }
+
+    private:
+    std::function<void()> tryFn;
+    std::function<void(const char*)> catchFn;
+};
+
 #define CHECK_THREAD_POOL_EXCEPTION(pool)                    \
     if (!(pool)->getExceptionMsg().empty()) {                \
         throw std::runtime_error((pool)->getExceptionMsg()); \
