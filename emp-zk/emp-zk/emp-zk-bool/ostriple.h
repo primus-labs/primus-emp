@@ -162,14 +162,16 @@ public:
 		uint32_t leftover = task_base + (check_cnt % task_base);
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
-		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_base, share_seed](){
-				// throw std::runtime_error("[PadoNetworkError]andgate correctness check error");
-				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
+		for(int i = 0; i < threads; ++i) {
+			uint32_t task_n = task_base;
+			if (i == threads - 1) {
+				task_n = leftover;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_n, share_seed](){
+				andgate_correctness_check(sum, i, start, task_n, share_seed[i]);
 						}, pool)));
 			start += task_base;
 		}
-		andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
 
 		for(auto &f : fut) f.get();
 
