@@ -100,7 +100,10 @@ public:
 
 		uint32_t width = tree_n / threads;
 		uint32_t start = 0, end = width;
-		for(int i = 0; i < threads - 1; ++i) {
+		for(int i = 0; i < threads; ++i) {
+			if (i == threads - 1) {
+				end = tree_n;
+			}
 			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, ot, sparse_vector](){
 				for (auto i = start; i < end; ++i) {
 					if(party == ALICE) {
@@ -119,20 +122,6 @@ public:
 			start = end;
 			end += width;
 		}
-		end = tree_n;
-		for (auto i = start; i < end; ++i) {
-			if(party == ALICE){
-				ggm_tree[i] = sparse_vector+i*leave_n;
-				senders[i]->compute(ggm_tree[i], secret_share_x, triple_yz[i]);
-				senders[i]->template send<OTPre<IO>>(ot, ios[threads-1], i);
-				ios[threads-1]->flush();
-			} else {
-				recvers[i]->template recv<OTPre<IO>>(ot, ios[threads-1], i);
-				ggm_tree[i] = sparse_vector+i*leave_n;
-				recvers[i]->compute(ggm_tree[i], triple_yz[i]);
-				ios[threads-1]->flush();
-			}
-		}
 		for (auto & f : fut) f.get();
 
 		CHECK_THREAD_POOL_EXCEPTION(pool);
@@ -143,7 +132,10 @@ public:
 			seed_expand(seed, threads);
 			vector<future<void>> fut;
 			uint32_t start = 0, end = width;
-			for(int i = 0; i < threads - 1; ++i) {
+			for(int i = 0; i < threads; ++i) {
+				if (i == threads - 1) {
+					end = tree_n;
+				}
 				fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, seed](){
 					for (auto i = start; i < end; ++i) {
 						if(party == ALICE) {
@@ -155,14 +147,6 @@ public:
 				}, pool)));
 				start = end;
 				end += width;
-			}
-			end = tree_n;
-			for (auto i = start; i < end; ++i) {
-				if(party == ALICE){
-					senders[i]->consistency_check_msg_gen(check_VW_buf[i], ios[threads-1], seed[threads-1]);
-				} else {
-					recvers[i]->consistency_check_msg_gen(check_chialpha_buf[i], check_VW_buf[i], ios[threads-1], triple_yz[i], seed[threads-1]);
-				}
 			}
 			for (auto & f : fut) f.get();
 
