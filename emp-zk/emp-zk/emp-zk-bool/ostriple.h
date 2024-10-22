@@ -54,7 +54,9 @@ public:
 		andgate_right_buffer = new block[CHECK_SZ];
 
 		block tmp;
-		ferret->rcot(&tmp, 1);
+		safeInitialize([this, &tmp]() {
+			this->ferret->rcot(&tmp, 1);
+		});
 
 		choice[0] = choice2[0] = zero_block;
 		choice[1] = this->delta;
