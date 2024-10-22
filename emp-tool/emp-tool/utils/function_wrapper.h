@@ -45,31 +45,33 @@ struct FunctionWrapperV2: public AbstractFunctionWrapper {
     }
 
     void execute() override {
-        if (this->exceptionMsg == nullptr) {
+        check_exception_msg();
+        if (this->exceptionMsg->empty()) {
             fn();
         }
     }
 
-    void catchException(const char* exceptionMsg) override {
-        if (this->exceptionMsg != nullptr) {
-            delete this->exceptionMsg;
-            this->exceptionMsg = nullptr;
-        }
-        this->exceptionMsg = new std::string(exceptionMsg);
+    void catchException(const char* e) override {
+        check_exception_msg();
+        *exceptionMsg = e;
     }
 
-    static std::string getExceptionMsgOnce() {
-        if (exceptionMsg == nullptr) {
-            return "";
-        }
-        std::string e = *exceptionMsg;
-        delete exceptionMsg;
-        exceptionMsg = nullptr;
 
-        return e;
+    static std::string getExceptionMsg() {
+        check_exception_msg();
+        return *exceptionMsg;
+    }
+    static void setExceptionMsgPtr(std::string* ptr) {
+        exceptionMsg = ptr;
     }
 
     private:
+    static void check_exception_msg() {
+        if (exceptionMsg == nullptr) {
+            throw std::runtime_error("exception msg not set");
+        }
+    }
+
     std::function<void()> fn;
 #ifndef THREADING
     static std::string *exceptionMsg;
@@ -112,13 +114,22 @@ struct FunctionWrapperV3: public AbstractFunctionWrapper {
         this->finalizeIO();                 \
     })()
 
+inline void safeInitialize(std::function<void()> initFn) {
+    FunctionWrapperV2([&initFn](){
+        initFn();
+    })();
+}
+
 #define CHECK_FINALIZE_IO_EXCEPTION()                                           \
     do {                                                                        \
-        string exceptionMsg = FunctionWrapperV2::getExceptionMsgOnce();         \
+        string exceptionMsg = FunctionWrapperV2::getExceptionMsg();             \
         if (!exceptionMsg.empty()) {                                            \
             throw std::runtime_error(exceptionMsg);                             \
         }                                                                       \
     } while(false)
+
+#define CHECK_INITIALIZE_EXCEPTION()                                            \
+    CHECK_FINALIZE_IO_EXCEPTION()
 
 #define SET_FINALIZE_IO_EXCEPTION(exceptionMsg)                                 \
     do {                                                                        \
