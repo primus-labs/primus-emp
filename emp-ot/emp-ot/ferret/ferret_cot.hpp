@@ -20,8 +20,14 @@ FerretCOT<T>::FerretCOT(int party, int threads, T **ios,
 			prg.random_block(&Delta);
 			Delta = Delta & one;
 			Delta = Delta ^ 0x1;
-			setup(Delta, pre_file);
-		} else setup(pre_file);
+			safeInitialize([this, pre_file]() {
+				this->setup(this->Delta, pre_file);
+			});
+		} else {
+			safeInitialize([this, pre_file]() {
+				this->setup(pre_file);
+			});
+		}
 	}
 }
 
