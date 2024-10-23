@@ -109,8 +109,11 @@ public:
 
 		uint32_t width = tree_n / threads;
 		uint32_t start = 0, end = width;
-		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, start, end, width, senders, recvers, ot, sparse_vector](){
+		for(int i = 0; i < threads; ++i) {
+			if (i == threads - 1) {
+		        end = tree_n;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end, width, senders, recvers, ot, sparse_vector](){
 				for (auto i = start; i < end; ++i) {
 					if(party == ALICE) {
 						ggm_tree[i] = sparse_vector+i*leave_n;
@@ -126,30 +129,14 @@ public:
 						ios[start/width]->flush();
 					}
 				}
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
-		end = tree_n;
-		for (auto i = start; i < end; ++i) {
-			if(party == ALICE){
-				ggm_tree[i] = sparse_vector+i*leave_n;
-				senders[i]->compute(ggm_tree[i], secret_share_x, triple_yz[i]);
-				senders[i]->template send<OTPre<IO>>(ot, ios[threads-1], i);
-				if(is_malicious) senders[i]->consistency_check_msg_gen(check_VW_buf[i], ios[threads-1]);
-				ios[threads-1]->flush();
-			} else {
-				recvers[i]->template recv<OTPre<IO>>(ot, ios[threads-1], i);
-				ggm_tree[i] = sparse_vector+i*leave_n;
-				recvers[i]->compute(ggm_tree[i], triple_yz[i]);
-				if(is_malicious) recvers[i]->consistency_check_msg_gen(check_chialpha_buf[i], check_VW_buf[i], ios[threads-1]);
-				ios[threads-1]->flush();
-			}
-		}
 		for (auto & f : fut) f.get();
 
-		// check pool executation exception
 		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 
 		if(is_malicious) {
 			if(party == ALICE)

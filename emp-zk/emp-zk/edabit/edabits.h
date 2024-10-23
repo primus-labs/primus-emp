@@ -68,11 +68,14 @@ public:
 		int_boo_pr_plus_two = Integer(62, PR+2, PUBLIC); 	// TODO why????
 	}
 
+	void finalizeIO() {
+		if(!auth_helper->triple_equality_check())
+			error("cut and choose fails");
+	}
+
 	~EdaBits() {
-		if(emp::runtime_errno==0){
-			if(!auth_helper->triple_equality_check())
-				error("cut and choose fails");
-		}
+		SAFE_FINALIZE_IO();
+
 		if(bool_candidate != nullptr) delete[] bool_candidate;
 		if(arith_candidate != nullptr) delete[] arith_candidate;
 		if(auth_helper != nullptr) delete auth_helper;

@@ -54,14 +54,18 @@ public:
 		pre_f2k_buffer_refill();
 	}
 
+    void finailzeIO() {
+		if(andgate_buf_not_empty()) {
+			andgate_correctness_check_manage();
+		}
+	}
+
 	~F2kOSTriple () {
 		delete polyprdt;
 		delete svole;
-		if(emp::runtime_errno==0){
-			if(andgate_buf_not_empty()) {
-				andgate_correctness_check_manage();
-			}
-		}
+
+		SAFE_FINALIZE_IO();
+
 		delete[] auth_buffer_val;
 		delete[] auth_buffer_mac;
 		delete[] andgate_buffer_left_val;
@@ -211,18 +215,21 @@ public:
 		}
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
-		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, sum, i, start, task_base, share_seed](){
-				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
-						}));
+		for(int i = 0; i < threads; ++i) {
+			uint32_t task_n = task_base;
+			if (i == threads - 1) {
+				task_n = leftover;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_n, share_seed](){
+				andgate_correctness_check(sum, i, start, task_n, share_seed[i]);
+						}, pool)));
 			start += task_base;
 		}
-		andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
 
 		for(auto &f : fut) f.get();
 
-		// check pool executation exception
 		CHECK_THREAD_POOL_EXCEPTION(pool);
+
 
 		block ope_data[128];
 		ferret->rcot(ope_data, 128);

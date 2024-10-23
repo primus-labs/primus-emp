@@ -42,6 +42,7 @@ emp-tool/circuits/float32_ln.cpp
 emp-tool/circuits/float32_log2.cpp
 
 emp-tool/utils/__aesenc.cpp
+emp-tool/utils/function_wrapper.cpp
 # can not work on arm
 # emp-tool/utils/_bsaes.c
 # emp-tool/utils/_stable.c
@@ -67,6 +68,11 @@ ENDIF()
 
 add_compile_options(-fPIC)
 add_library(${NAME} ${sources})
+IF(ENABLE_WASM)
+    target_compile_options(${NAME} PRIVATE -sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun)
+    set_target_properties(${NAME} PROPERTIES LINK_FLAGS "-sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun")
+ENDIF()
+
 target_link_libraries(${NAME} ${OPENSSL_LIBRARIES})
 
 install(DIRECTORY emp-tool DESTINATION include/)

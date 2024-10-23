@@ -159,20 +159,17 @@ class LpnFp { public:
 
 	void compute() {
 		vector<std::future<void>> fut;
-		int width = n/(threads+1);
+		int width = n/(threads);
 		for(int i = 0; i < threads; ++i) {
 			int start = i * width;
 			int end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, start, end]() {
+			fut.push_back(pool->enqueue(FunctionWrapper([this, start, end]() {
 				task(start, end);
-			}));
+			}, pool)));
 		}
-		int start = threads * width;
-		int end = min( (threads+1) * width, n);
-		task(start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
+
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}

@@ -18,10 +18,14 @@ class BoolIO: public IOChannel<BoolIO<IO>> { public:
 			ptr = 0;
 		else ptr = NETWORK_BUFFER_SIZE2;
 	}
+
+	void finalizeIO() {
+		this->flush();
+	}
+
 	~BoolIO() {
-		if(emp::runtime_errno==0){
-			this->flush();
-		}
+		SAFE_FINALIZE_IO();
+
 		delete[] buf;
 	}
 	void flush() {

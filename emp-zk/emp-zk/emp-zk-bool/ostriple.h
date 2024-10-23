@@ -54,7 +54,9 @@ public:
 		andgate_right_buffer = new block[CHECK_SZ];
 
 		block tmp;
-		ferret->rcot(&tmp, 1);
+		safeInitialize([this, &tmp]() {
+			this->ferret->rcot(&tmp, 1);
+		});
 
 		choice[0] = choice2[0] = zero_block;
 		choice[1] = this->delta;
@@ -66,18 +68,21 @@ public:
 		if(party == BOB) auth_helper->set_delta(this->delta);
 	}	
 
-	~OSTriple () {
-		if(emp::runtime_errno==0){
-			if(check_cnt!=0) {
-				andgate_correctness_check_manage();
-			}
-			if(!auth_helper->finalize()){
-				CheatRecord::put("emp-zk-bool finalize");
-			}
-			if(ferret_state != nullptr){
-				ferret->assemble_state(ferret_state, 10400000);
-			}
+	void finalizeIO() {
+		if(check_cnt!=0) {
+			andgate_correctness_check_manage();
 		}
+		if(!auth_helper->finalize()){
+			CheatRecord::put("emp-zk-bool finalize");
+		}
+		if(ferret_state != nullptr){
+			ferret->assemble_state(ferret_state, 10400000);
+		}
+	}
+
+	~OSTriple () {
+		SAFE_FINALIZE_IO();
+
 		delete ferret;
 		delete[] andgate_out_buffer;
 		delete[] andgate_left_buffer;
@@ -159,17 +164,19 @@ public:
 		uint32_t leftover = task_base + (check_cnt % task_base);
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
-		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(pool->enqueue([this, sum, i, start, task_base, share_seed](){
-				andgate_correctness_check(sum, i, start, task_base, share_seed[i]);
-						}));
+		for(int i = 0; i < threads; ++i) {
+			uint32_t task_n = task_base;
+			if (i == threads - 1) {
+				task_n = leftover;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, sum, i, start, task_n, share_seed](){
+				andgate_correctness_check(sum, i, start, task_n, share_seed[i]);
+						}, pool)));
 			start += task_base;
 		}
-		andgate_correctness_check(sum, threads - 1, start, leftover, share_seed[threads - 1]);
 
 		for(auto &f : fut) f.get();
 
-		// check pool executation exception
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 		if(party == ALICE) {

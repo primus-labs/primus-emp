@@ -20,8 +20,14 @@ FerretCOT<T>::FerretCOT(int party, int threads, T **ios,
 			prg.random_block(&Delta);
 			Delta = Delta & one;
 			Delta = Delta ^ 0x1;
-			setup(Delta, pre_file);
-		} else setup(pre_file);
+			safeInitialize([this, pre_file]() {
+				this->setup(this->Delta, pre_file);
+			});
+		} else {
+			safeInitialize([this, pre_file]() {
+				this->setup(pre_file);
+			});
+		}
 	}
 }
 
@@ -102,9 +108,9 @@ void FerretCOT<T>::setup(std::string pre_file) {
 	}
 
 	ThreadPool pool2(1);
-	auto fut = pool2.enqueue([this](){
+	auto fut = pool2.enqueue(FunctionWrapper([this](){
 		extend_initialization();
-	});
+	}, &pool2));
 
 	ot_pre_data = new block[param.n_pre];
 	bool hasfile = file_exists(pre_ot_filename), hasfile2;
@@ -138,8 +144,8 @@ void FerretCOT<T>::setup(std::string pre_file) {
 	}
 
 	fut.get();
-	// check pool executation exception
-	CHECK_THREAD_POOL_EXCEPTION(pool);
+
+	CHECK_THREAD_POOL_EXCEPTION(&pool2);
 
 }
 

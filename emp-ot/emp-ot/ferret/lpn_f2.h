@@ -67,19 +67,19 @@ class LpnF2 { public:
 		vector<std::future<void>> fut;
 		int64_t width = n/threads;
 		seed = seed_gen();
-		for(int i = 0; i < threads - 1; ++i) {
+		for(int i = 0; i < threads; ++i) {
 			int64_t start = i * width;
 			int64_t end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, nn, kk, start, end]() {
+			if (i == threads - 1) {
+				end = n;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, nn, kk, start, end]() {
 				task(nn, kk, start, end);
-			}));
+			}, pool)));
 		}
-		int64_t start = (threads - 1) * width;
-        	int64_t end = n;
-		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
+
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}
@@ -98,19 +98,19 @@ class LpnF2 { public:
 	void bench(block * nn, const block * kk) {
 		vector<std::future<void>> fut;
 		int64_t width = n/threads;
-		for(int i = 0; i < threads - 1; ++i) {
+		for(int i = 0; i < threads; ++i) {
 			int64_t start = i * width;
 			int64_t end = min((i+1)* width, n);
-			fut.push_back(pool->enqueue([this, nn, kk, start, end]() {
+			if (i == threads - 1) {
+				end = n;
+			}
+			fut.push_back(pool->enqueue(FunctionWrapper([this, nn, kk, start, end]() {
 				task(nn, kk, start, end);
-			}));
+			}, pool)));
 		}
-		int64_t start = (threads - 1) * width;
-        	int64_t end = n;
-		task(nn, kk, start, end);
 
 		for (auto &f: fut) f.get();
-		// check pool executation exception
+
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}

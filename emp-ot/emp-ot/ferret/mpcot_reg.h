@@ -109,22 +109,21 @@ public:
 		vector<future<void>> fut;		
 		int width = tree_n / threads;
 		int start = 0, end = width;
-		for(int i = 0; i < threads - 1; ++i) {	
-			fut.push_back(this->pool->enqueue([this, start, end, width, 
+		for(int i = 0; i < threads; ++i) {
+			if (i == threads - 1) {
+				end = tree_n;
+			}
+			fut.push_back(this->pool->enqueue(FunctionWrapper([this, start, end, width, 
 						senders, ot, sparse_vector](){
 				for(int i = start; i < end; ++i)
 					exec_f2k_sender(senders[i], ot, sparse_vector+i*leave_n, 
 							ios[start/width], i);
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
-		end = tree_n;
-		for(int i = start; i < end; ++i)
-			exec_f2k_sender(senders[i], ot, sparse_vector+i*leave_n, 
-					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
-		// check pool executation exception
+
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}
@@ -134,22 +133,21 @@ public:
 		vector<future<void>> fut;		
 		int width = tree_n / threads;
 		int start = 0, end = width;
-		for(int i = 0; i < threads - 1; ++i) {
-			fut.push_back(this->pool->enqueue([this, start, end, width, 
+		for(int i = 0; i < threads; ++i) {
+			if (i == threads - 1) {
+				end = tree_n;
+			}
+			fut.push_back(this->pool->enqueue(FunctionWrapper([this, start, end, width, 
 						recvers, ot, sparse_vector](){
 				for(int i = start; i < end; ++i)
 					exec_f2k_recver(recvers[i], ot, sparse_vector+i*leave_n, 
 							ios[start/width], i);
-			}));
+			}, pool)));
 			start = end;
 			end += width;
 		}
-		end = tree_n;
-		for(int i = start; i < end; ++i)
-			exec_f2k_recver(recvers[i], ot, sparse_vector+i*leave_n, 
-					ios[threads - 1], i);
 		for (auto & f : fut) f.get();
-		// check pool executation exception
+
 		CHECK_THREAD_POOL_EXCEPTION(pool);
 
 	}
