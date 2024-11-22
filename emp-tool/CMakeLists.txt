@@ -68,10 +68,7 @@ ENDIF()
 
 add_compile_options(-fPIC)
 add_library(${NAME} ${sources})
-IF(ENABLE_WASM)
-    target_compile_options(${NAME} PRIVATE -sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun)
-    set_target_properties(${NAME} PROPERTIES LINK_FLAGS "-sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun")
-ENDIF()
+
 
 target_link_libraries(${NAME} ${OPENSSL_LIBRARIES})
 
