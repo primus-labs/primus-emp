@@ -68,7 +68,8 @@ struct FunctionWrapperV2: public AbstractFunctionWrapper {
     private:
     static void check_exception_msg() {
         if (exceptionMsg == nullptr) {
-            throw std::runtime_error("exception msg not set");
+            // throw std::runtime_error("exception msg not set");
+            exceptionMsg = new string("");
         }
     }
 

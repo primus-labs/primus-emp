@@ -54,7 +54,7 @@ public:
 		pre_f2k_buffer_refill();
 	}
 
-    void finailzeIO() {
+    void finalizeIO() {
 		if(andgate_buf_not_empty()) {
 			andgate_correctness_check_manage();
 		}
