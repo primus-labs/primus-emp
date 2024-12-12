@@ -36,7 +36,7 @@ public:
 		num = 0;
 	}
 
-    void finailzeIO() {
+    void finalizeIO() {
 		batch_check();
 	}
 
