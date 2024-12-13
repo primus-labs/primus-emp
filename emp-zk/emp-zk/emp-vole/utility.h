@@ -11,7 +11,7 @@ const static int r = 1;
 const static __uint128_t pr = 2305843009213693951;
 const static block prs = makeBlock(2305843009213693951ULL, 2305843009213693951ULL);
 const static uint64_t PR = 2305843009213693951;
-static __m128i PRs = makeBlock(PR, PR);
+const static __m128i PRs = makeBlock(PR, PR);
 
 #if  defined(__x86_64__) && defined(__BMI2__)
 inline uint64_t mul64(uint64_t a, uint64_t b, uint64_t * c) {
