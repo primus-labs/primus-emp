@@ -1,16 +1,31 @@
-# pado-emp
+# primus-emp
 Including emp-tool, emp-ot, emp-zk. Some optimizations. WebAssembly supports.
 
 
 ## Overview
 
-Current repo initialization date: 03/03/2023.
+This repository is based on the following version of [emp-toolkit](https://github.com/emp-toolkit):
 
-**EMP** initial version:
+- [emp-toolkit/emp-tool(636b07d)](https://github.com/emp-toolkit/emp-tool/tree/636b07d)
+- [emp-toolkit/emp-ot(d5f4fc8)](https://github.com/emp-toolkit/emp-ot/tree/d5f4fc8)
+- [emp-toolkit/emp-zk(d16142e)](https://github.com/emp-toolkit/emp-zk/tree/d16142e)
 
-| project  | origin                                                          | commit-id | commit-date          |
-| -------- | --------------------------------------------------------------- | --------- | -------------------- |
-| emp-tool | [emp-toolkit/emp-tool](https://github.com/emp-toolkit/emp-tool) | 636b07d   | Feb 23 12:48:40 2023 |
-| emp-ot   | [emp-toolkit/emp-ot](https://github.com/emp-toolkit/emp-ot)     | d5f4fc8   | Feb 24 11:41:21 2023 |
-| emp-zk   | [emp-toolkit/emp-zk](https://github.com/emp-toolkit/emp-zk)     | d16142e   | Feb 22 21:24:57 2023 |
 
+## Installation
+
+```bash
+git clone https://github.com/primus-labs/primus-emp.git
+cd primus-emp
+
+# Building
+bash ./compile.sh
+
+# Testing
+bash ./test.sh
+```
+
+## Documents and Usages
+
+- [emp-tool](./emp-tool/README.md)
+- [emp-ot](./emp-ot/README.md)
+- [emp-zk](./emp-zk/README.md)
