@@ -39,3 +39,8 @@ install_manifest.txt
 *.exe
 *.out
 *.app
+
+
+# auto generate files
+sort_file.h
+sort.txt
