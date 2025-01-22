@@ -59,13 +59,6 @@ ENDIF(${CRYPTO_IN_CIRCUIT})
 find_package(OpenSSL REQUIRED)
 include_directories(${OPENSSL_INCLUDE_DIR})
 
-IF(ENABLE_WASM)
-  set(NO_WARN_FLAGS "-Wno-unused-function -Wno-unused-command-line-argument")
-  set(CCFLAGS "-msimd128 -msse -msse2 -msse4.1 -msse4.2 -s ASSERTIONS=1")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NO_WARN_FLAGS} ${CCFLAGS}")
-ENDIF()
-
 add_compile_options(-fPIC)
 add_library(${NAME} ${sources})
 IF(ENABLE_WASM)
