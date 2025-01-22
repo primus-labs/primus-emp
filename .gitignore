@@ -38,3 +38,5 @@ build_wasm/
 logs/
 temp/
 __pycache__/
+install/
+install_wasm/
