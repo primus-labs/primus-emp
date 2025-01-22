@@ -62,8 +62,11 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 add_compile_options(-fPIC)
 add_library(${NAME} ${sources})
 IF(ENABLE_WASM)
+# USE_WASM_EXCEPTION is used for temporary transitions
+IF(NOT USE_WASM_EXCEPTION)
     target_compile_options(${NAME} PRIVATE -sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun)
     set_target_properties(${NAME} PROPERTIES LINK_FLAGS "-sEXCEPTION_CATCHING_ALLOWED=FunctionSafeRun")
+ENDIF()
 ENDIF()
 
 target_link_libraries(${NAME} ${OPENSSL_LIBRARIES})
