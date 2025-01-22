@@ -60,6 +60,11 @@ class BristolFormat { public:
 		this->from_file(file);
 	}
 
+  // Loading circuits from memory
+	BristolFormat(const string content) {
+		FILE *file = fmemopen((void*)content.data(), content.length(), "r");  
+		this->from_file(file);
+	}
 
 	void to_file(const char * filename, const char * prefix) {
 		fout.open(filename);
