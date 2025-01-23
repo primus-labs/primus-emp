@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 project (emp-ot)
 set(NAME "emp-ot")
 
-IF(ENABLE_WASM)
+IF(ENABLE_WASM OR ENABLE_ANDROID)
   set(CMAKE_FOLDER ${CMAKE_INSTALL_PREFIX})
   include(${CMAKE_FOLDER}/cmake/emp-base.cmake)
 
