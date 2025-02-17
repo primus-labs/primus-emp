@@ -24,7 +24,7 @@ emp_repos=(
 # ######################
 for repo in ${emp_repos[@]}; do
   echo "compile ${repo}"
-  repo_dir=${curdir}/${repo}
+  repo_dir=${curdir}/primus-emp/${repo}
   if [ -d ${repo_dir} ]; then
     mkdir -p ${builddir}/${repo}
     cd ${builddir}/${repo}

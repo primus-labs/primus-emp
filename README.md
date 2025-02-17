@@ -15,13 +15,12 @@ This repository is based on the following version of [emp-toolkit](https://githu
 
 ```bash
 git clone https://github.com/primus-labs/primus-emp.git
-cd primus-emp
 
 # Building
-bash ./compile.sh
+bash ./primus-emp/compile.sh
 
 # Testing
-bash ./test.sh
+bash ./primus-emp/test.sh
 ```
 
 ## Documents and Usages
