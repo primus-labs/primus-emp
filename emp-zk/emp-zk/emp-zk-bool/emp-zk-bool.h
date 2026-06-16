@@ -9,16 +9,16 @@
 
 namespace emp {
 template<typename IO>
-inline void setup_zk_bool(IO** ios, int threads, int party, void * state = nullptr) {
+inline void setup_zk_bool(IO** ios, int threads, int party, void * state = nullptr, const PrimalLPNParameter* lpn_param = &ferret_b10) {
 	CheatRecord::reset();
 	if(party == ALICE) {
 		ZKBoolCircExecPrv<IO> * t = new ZKBoolCircExecPrv<IO>();
 		CircuitExecution::circ_exec = t;
-		ProtocolExecution::prot_exec = new ZKProver<IO>(ios, threads, t, state);
+		ProtocolExecution::prot_exec = new ZKProver<IO>(ios, threads, t, state, lpn_param);
 	} else {
 		ZKBoolCircExecVer<IO> * t = new ZKBoolCircExecVer<IO>();
 		CircuitExecution::circ_exec = t;
-		ProtocolExecution::prot_exec = new ZKVerifier<IO>(ios, threads, t, state);
+		ProtocolExecution::prot_exec = new ZKVerifier<IO>(ios, threads, t, state, lpn_param);
 	}
 }
 
