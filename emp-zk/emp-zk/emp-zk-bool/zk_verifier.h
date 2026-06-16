@@ -46,9 +46,9 @@ public:
 	OSTriple<IO>* ostriple = nullptr;
 	PolyProof<IO> *polyproof = nullptr;
 	ZKBoolCircExecVer<IO> *eva = nullptr;
-	ZKVerifier(IO **ios, int threads, ZKBoolCircExecVer<IO> *t, void * state): ProtocolExecution(BOB) {
+	ZKVerifier(IO **ios, int threads, ZKBoolCircExecVer<IO> *t, void * state, const PrimalLPNParameter* lpn_param = &ferret_b10): ProtocolExecution(BOB) {
 		this->io = ios[0];
-		ostriple = new OSTriple<IO>(BOB, threads, ios, state);
+		ostriple = new OSTriple<IO>(BOB, threads, ios, state, lpn_param);
 		polyproof = new PolyProof<IO>(BOB, ios[0], ostriple->ferret);
 		polyproof->delta = ostriple->delta;
 		t->template set_ostriple<IO>(ostriple);

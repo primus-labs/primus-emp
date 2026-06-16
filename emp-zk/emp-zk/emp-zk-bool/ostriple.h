@@ -32,14 +32,19 @@ public:
 	ThreadPool *pool = nullptr;
 	void * ferret_state = nullptr;
 	
-	OSTriple (int party, int threads, IO **ios, void * state = nullptr) {
+	OSTriple (int party, int threads, IO **ios, void * state = nullptr, const PrimalLPNParameter* lpn_param = nullptr) {
 		this->party = party;
 		this->threads = threads;
 		this->ferret_state = state;
 		// initiate Iterative COT with regular noise and security against malicious adv
-		if(ferret_state == nullptr)
-			// ferret = new FerretCOT<IO>(3-party, threads, ios, true);
-			ferret = new FerretCOT<IO>(3-party, threads, ios, true, true, PrimalLPNParameter(1024*2048, 2048, 65536, 10, 86272, 337, 16384, 8));
+		if(ferret_state == nullptr) {
+            if (lpn_param == nullptr) {
+			    ferret = new FerretCOT<IO>(3-party, threads, ios, true, true, ferret_b10);
+            }
+            else {
+			    ferret = new FerretCOT<IO>(3-party, threads, ios, true, true, *lpn_param);
+            }
+        }
 		else {
 			ferret = new FerretCOT<IO>(3-party, threads, ios, true, false);
 			ferret->disassemble_state(ferret_state, 10400000);

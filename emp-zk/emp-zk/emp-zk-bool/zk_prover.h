@@ -35,10 +35,10 @@ public:
 	OSTriple<IO> *ostriple = nullptr;
 	PolyProof<IO> *polyproof = nullptr;
 	ZKBoolCircExecPrv<IO> *gen = nullptr;
-	ZKProver(IO** ios, int threads, ZKBoolCircExecPrv<IO> *t, void * state): ProtocolExecution(ALICE) {
+	ZKProver(IO** ios, int threads, ZKBoolCircExecPrv<IO> *t, void * state, const PrimalLPNParameter* lpn_param = &ferret_b10): ProtocolExecution(ALICE) {
 		this->io = ios[0];
 		this->gen = t;
-		ostriple = new OSTriple<IO>(ALICE, threads, ios, state);
+		ostriple = new OSTriple<IO>(ALICE, threads, ios, state, lpn_param);
 		polyproof = new PolyProof<IO>(ALICE, ios[0], ostriple->ferret);
 		t->template set_ostriple<IO>(ostriple);
 		t->polyproof = this->polyproof;
