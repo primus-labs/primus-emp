@@ -22,7 +22,8 @@ class PrimalLPNParameter { public:
 	}
 };
 
-const static PrimalLPNParameter ferret_b13 = PrimalLPNParameter(10485760, 1280, 452000, 13, 470016, 918, 32768, 9);
+const static PrimalLPNParameter ferret_b13_old = PrimalLPNParameter(10485760, 1280, 452000, 13, 470016, 918, 32768, 9);
+const static PrimalLPNParameter ferret_b13 = PrimalLPNParameter(15564800, 1900, 524288, 13, 870400, 850, 65536, 10);
 const static PrimalLPNParameter ferret_b12 = PrimalLPNParameter(10268672, 2507, 238000, 12, 268800, 1050, 17384, 8);
 const static PrimalLPNParameter ferret_b11 = PrimalLPNParameter(10180608, 4971, 124000, 11, 178944, 699, 17384, 8);
 const static PrimalLPNParameter ferret_b10 = PrimalLPNParameter(1024*2048, 2048, 65536, 10, 86272, 337, 16384, 8);
