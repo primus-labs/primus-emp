@@ -14,8 +14,8 @@ class COT : public OT<T>{ public:
 	virtual void send_cot(block* data0, int64_t length) = 0;
 	virtual void recv_cot(block* data, const bool* b, int64_t length) = 0;
 	void send(const block* data0, const block* data1, int64_t length) override {
-		block * data = new block[length];
-		send_cot(data, length);
+		std::unique_ptr<block[]> data(new block[length]);
+		send_cot(data.get(), length);
 		block s;prg.random_block(&s, 1);
 		io->send_block(&s,1);
 		mitccrh.setS(s);
@@ -33,7 +33,6 @@ class COT : public OT<T>{ public:
 			}
 			io->send_data(pad, 2*sizeof(block)*min(ot_bsize,length-i));
 		}
-		delete[] data;
 	}
 
 	void recv(block* data, const bool* r, int64_t length) override {

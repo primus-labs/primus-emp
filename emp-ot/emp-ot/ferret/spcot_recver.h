@@ -11,7 +11,9 @@ template<typename IO>
 class SPCOT_Recver {
 public:
 	block *ggm_tree, *m;
+    std::unique_ptr<block[]> p_m;
 	bool *b;
+    std::unique_ptr<bool[]> p_b;
 	int choice_pos, depth, leave_n;
 	IO *io;
 
@@ -22,12 +24,12 @@ public:
 		this->depth = depth_in;
 		this->leave_n = 1<<(depth_in-1);
 		m = new block[depth-1];
+        p_m.reset(m);
 		b = new bool[depth-1];
+        p_b.reset(b);
 	}
 
 	~SPCOT_Recver(){
-		delete[] m;
-		delete[] b;
 	}
 
 	int get_index() {
@@ -97,13 +99,13 @@ public:
 	void consistency_check_msg_gen(block *chi_alpha, block *W) {
 		// X
 		block *chi = new block[leave_n];
+        std::unique_ptr<block[]> p_chi(chi);
 		Hash hash;
 		block digest[2];
 		hash.hash_once(digest, &secret_sum_f2, sizeof(block));
 		uni_hash_coeff_gen(chi, digest[0], leave_n);
 		*chi_alpha = chi[choice_pos];
 		vector_inn_prdt_sum_red(W, chi, ggm_tree, leave_n);
-		delete[] chi;
 	}
 };
 #endif

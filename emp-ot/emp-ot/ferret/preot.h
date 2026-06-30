@@ -8,7 +8,9 @@ template<typename IO>
 class OTPre { public:
 	IO* io;
 	block * pre_data = nullptr;
+    std::unique_ptr<block[]> p_pre_data;
 	bool * bits = nullptr;
+    std::unique_ptr<bool[]> p_bits;
 	int n;
 	vector<block*> pointers;
 	vector<const bool*> choices;
@@ -23,16 +25,13 @@ class OTPre { public:
 		this->length = length;
 		n = length*times;
 		pre_data = new block[2*n];
+        p_pre_data.reset(pre_data);
 		bits = new bool[n];
+        p_bits.reset(bits);
 		count = 0;
 	}
 
 	~OTPre() {
-		if (pre_data != nullptr)
-			delete[] pre_data;
-
-		if (bits != nullptr)
-			delete[] bits;
 	}
 
 	void send_pre(block * data, block in_Delta) {

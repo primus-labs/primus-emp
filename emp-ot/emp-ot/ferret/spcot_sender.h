@@ -12,6 +12,7 @@ class SPCOT_Sender { public:
 	block seed;
 	block delta;
 	block *ggm_tree, *m;
+    std::unique_ptr<block[]> p_m;
 	IO *io;
 	int depth, leave_n;
 	PRG prg;
@@ -27,10 +28,10 @@ class SPCOT_Sender { public:
 		this->depth = depth_in;
 		this->leave_n = 1<<(this->depth-1);
 		m = new block[(depth-1)*2];
+        p_m.reset(m);
 	}
 
 	~SPCOT_Sender() {
-		delete[] m;
 	}
 
 	// generate GGM tree, transfer secret, F2^k
@@ -61,6 +62,7 @@ class SPCOT_Sender { public:
 	void ggm_tree_gen(block *ot_msg_0, block *ot_msg_1, block* ggm_tree_mem) {
 		this->ggm_tree = ggm_tree_mem;
 		TwoKeyPRP *prp = new TwoKeyPRP(zero_block, makeBlock(0, 1));
+        std::unique_ptr<TwoKeyPRP> p_prp(prp);
 		prp->node_expand_1to2(ggm_tree, seed);
 		ot_msg_0[0] = ggm_tree[0];
 		ot_msg_1[0] = ggm_tree[1];
@@ -82,19 +84,18 @@ class SPCOT_Sender { public:
 				ot_msg_1[h] ^= ggm_tree[i*2+7];
 			}
 		}
-		delete prp;
 	}
 
 	void consistency_check_msg_gen(block *V) {
 		// X
 		block *chi = new block[leave_n];
+        std::unique_ptr<block[]> p_chi(chi);
 		Hash hash;
 		block digest[2];
 		hash.hash_once(digest, &secret_sum_f2, sizeof(block));
 		uni_hash_coeff_gen(chi, digest[0], leave_n);
 
 		vector_inn_prdt_sum_red(V, chi, ggm_tree, leave_n);
-		delete[] chi;
 	}
 };
 
