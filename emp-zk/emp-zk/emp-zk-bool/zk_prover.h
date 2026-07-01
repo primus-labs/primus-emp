@@ -33,19 +33,21 @@ class ZKProver: public ProtocolExecution {
 public:
 	IO* io = nullptr;
 	OSTriple<IO> *ostriple = nullptr;
+    std::unique_ptr<OSTriple<IO>> p_ostriple;
 	PolyProof<IO> *polyproof = nullptr;
+    std::unique_ptr<PolyProof<IO>> p_polyproof;
 	ZKBoolCircExecPrv<IO> *gen = nullptr;
 	ZKProver(IO** ios, int threads, ZKBoolCircExecPrv<IO> *t, void * state, const PrimalLPNParameter* lpn_param = &ferret_b10): ProtocolExecution(ALICE) {
 		this->io = ios[0];
 		this->gen = t;
 		ostriple = new OSTriple<IO>(ALICE, threads, ios, state, lpn_param);
+        p_ostriple.reset(ostriple);
 		polyproof = new PolyProof<IO>(ALICE, ios[0], ostriple->ferret);
+        p_polyproof.reset(polyproof);
 		t->template set_ostriple<IO>(ostriple);
 		t->polyproof = this->polyproof;
 	}
 	~ZKProver() {
-		delete polyproof;
-		delete ostriple;
 	}
 
 	/* 

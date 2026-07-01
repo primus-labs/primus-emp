@@ -13,7 +13,9 @@ public:
 	int buffer_sz = 1000 * 1000;
 	//int buffer_sz = 4096;
 	block *buffer = nullptr;
+    std::unique_ptr<block[]> p_buffer;
 	block *buffer1 = nullptr;
+    std::unique_ptr<block[]> p_buffer1;
 	int num;
 	GaloisFieldPacking pack;
 	FerretCOT<IO> *ferret = nullptr;
@@ -25,9 +27,12 @@ public:
 		this->delta = ferret->Delta;
 		if(party == ALICE) {
 			buffer = new block[buffer_sz];
+            p_buffer.reset(buffer);
 			buffer1 = new block[buffer_sz];
+            p_buffer1.reset(buffer1);
 		} else {
 			buffer = new block[buffer_sz];
+            p_buffer.reset(buffer);
 		}
 		num = 0;
 	}
@@ -38,9 +43,6 @@ public:
 
 	~PolyProof() {
 		SAFE_FINALIZE_IO();
-
-		if(buffer != nullptr) delete[] buffer;
-		if(buffer1 != nullptr) delete[] buffer1;
 	}
 
 	void batch_check() {
@@ -48,6 +50,7 @@ public:
 
 		block seed;
 		block *chi = new block[num>4?num:4];
+        std::unique_ptr<block[]> p_chi(chi);
 		block ope_data[128];
 		block check_sum[2];
 		if(party == ALICE) {
@@ -95,7 +98,6 @@ public:
 				CheatRecord::put("zk polynomial: boolean polynomial zkp fails");
 		}
 		num = 0;
-		delete[] chi;
 	}
 
 	inline void zkp_poly_deg2(block *polyx, block *polyy, bool *coeff, int len) {
