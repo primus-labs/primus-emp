@@ -11,12 +11,7 @@
 #include "emp-tool/io/io_channel.h"
 using std::string;
 
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
+#include "emp-tool/utils/win_compat.h"
 
 namespace emp {
 
@@ -212,12 +207,13 @@ class HighSpeedNetIO : public IOChannel<HighSpeedNetIO> { public:
 	void sync() {}
 
 	void set_delay_opt(int sock, bool enable_nodelay) {
+		// cast to const char* for Winsock compatibility (no-op on POSIX)
 		if (enable_nodelay) {
 			const int one = 1;
-			setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &one, sizeof(one));
+			setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&one, sizeof(one));
 		} else {
 			const int zero = 0;
-			setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &zero, sizeof(zero));
+			setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&zero, sizeof(zero));
 		}
 	}
 
