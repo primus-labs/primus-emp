@@ -37,12 +37,46 @@
 #endif
 
 #include <cstdint>
+#include <cstdio>
 #include <mutex>
+#include <io.h>       // _open_osfhandle, _close
+#include <fcntl.h>    // _O_RDWR, _O_BINARY
 
 // POSIX usleep() shim (argument is microseconds). Windows Sleep() is ms-granular.
 #ifndef usleep
 static inline void emp_usleep(uint64_t usec) { Sleep((DWORD)((usec + 999) / 1000)); }
 #define usleep(us) emp_usleep((uint64_t)(us))
+#endif
+
+// POSIX fmemopen() shim. MinGW-w64's CRT has no fmemopen, so BristolFormat's
+// "load circuit from an in-memory string" ctor won't compile/link on Windows.
+// Back it with a Win32 temp file opened FILE_FLAG_DELETE_ON_CLOSE: the file is
+// removed automatically when the handle closes (or at process exit), so nothing
+// is left on disk. Binary mode is used deliberately — fmemopen does no newline
+// translation either, and the Bristol parser reads with fscanf on whitespace.
+#ifndef fmemopen
+static inline FILE* emp_fmemopen(const void* buf, size_t size, const char* mode) {
+    (void)mode;
+    char dir[MAX_PATH];
+    DWORD n = GetTempPathA(MAX_PATH, dir);
+    if (n == 0 || n > MAX_PATH) return NULL;
+    char path[MAX_PATH];
+    if (GetTempFileNameA(dir, "emp", 0, path) == 0) return NULL;
+    HANDLE h = CreateFileA(path, GENERIC_READ | GENERIC_WRITE, 0, NULL,
+                           CREATE_ALWAYS,
+                           FILE_ATTRIBUTE_TEMPORARY | FILE_FLAG_DELETE_ON_CLOSE,
+                           NULL);
+    if (h == INVALID_HANDLE_VALUE) return NULL;
+    int fd = _open_osfhandle((intptr_t)h, _O_RDWR | _O_BINARY);
+    if (fd == -1) { CloseHandle(h); return NULL; }
+    FILE* f = _fdopen(fd, "wb+");
+    if (!f) { _close(fd); return NULL; }
+    if (size) fwrite(buf, 1, size, f);
+    fflush(f);
+    fseek(f, 0, SEEK_SET);
+    return f;
+}
+#define fmemopen(buf, size, mode) emp_fmemopen((buf), (size), (mode))
 #endif
 
 // One-time Winsock initialization; safe to call repeatedly.
