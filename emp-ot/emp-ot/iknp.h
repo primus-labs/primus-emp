@@ -20,8 +20,8 @@ class IKNP: public COT<T> { public:
 	using COT<T>::io;
 	using COT<T>::Delta;
 
-	OTCO<T> * base_ot = nullptr;
-	bool setup = false, *extended_r = nullptr;
+	std::unique_ptr<OTCO<T>> base_ot;
+	bool setup = false;
 
 	const static int64_t block_size = 1024*2;
 	block local_out[block_size];
@@ -33,7 +33,6 @@ class IKNP: public COT<T> { public:
 		this->io = io;
 	}
 	~IKNP() {
-		delete_array_null(extended_r);
 	}
 
 	void setup_send(const bool* in_s = nullptr, block * in_k0 = nullptr) {
@@ -46,9 +45,8 @@ class IKNP: public COT<T> { public:
 		if(in_k0 != nullptr) {
 			memcpy(k0, in_k0, 128*sizeof(block));
 		} else {
-			this->base_ot = new OTCO<T>(io);
+			this->base_ot.reset(new OTCO<T>(io));
 			base_ot->recv(k0, s, 128);
-			delete base_ot;
 		}
 		for(int64_t i = 0; i < 128; ++i)
 			G0[i].reseed(&k0[i]);
@@ -62,11 +60,10 @@ class IKNP: public COT<T> { public:
 			memcpy(k0, in_k0, 128*sizeof(block));
 			memcpy(k1, in_k1, 128*sizeof(block));
 		} else {
-			this->base_ot = new OTCO<T>(io);
+			this->base_ot.reset(new OTCO<T>(io));
 			prg.random_block(k0, 128);
 			prg.random_block(k1, 128);
 			base_ot->send(k0, k1, 128);
-			delete base_ot;
 		}
 		for(int64_t i = 0; i < 128; ++i) {
 			G0[i].reseed(&k0[i]);
@@ -108,7 +105,8 @@ class IKNP: public COT<T> { public:
 		if(not setup)
 			setup_recv();
 
-		block *block_r = new block[(length+127)/128];
+		std::unique_ptr<block[]> p_block_r(new block[(length+127)/128]);
+        block* block_r = p_block_r.get();
 		for(int64_t i = 0; i < length/128; ++i)
 			block_r[i] = bool_to_block(r+i*128);
 		if (length%128 != 0) {
@@ -134,7 +132,6 @@ class IKNP: public COT<T> { public:
 			local_r_block[1] = bool_to_block(local_r + 128);
 			recv_pre_block(local_out, local_r_block, 256);
 		}
-		delete[] block_r;
 	}
 	void recv_pre_block(block * out, block * r, int64_t len) {
 		block t[block_size];

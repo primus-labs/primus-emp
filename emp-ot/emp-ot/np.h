@@ -14,19 +14,18 @@ template<typename IO>
 class OTNP: public OT<IO> { public:
 	IO* io;
 	Group *G = nullptr;
-	bool delete_G = true;
+    std::unique_ptr<Group> p_G;
 	OTNP(IO* io, Group * _G = nullptr) {
 		this->io = io;
-		if (_G == nullptr)
+		if (_G == nullptr) {
 			G = new Group();
+            p_G.reset(G);
+        }
 		else {
 			G = _G;
-			delete_G = false;
 		}
 	}
 	~OTNP() {
-		if (delete_G)
-			delete G;
 	}
 
 	void send(const block* data0, const block* data1, int64_t length) override {
@@ -36,12 +35,12 @@ class OTNP: public OT<IO> { public:
 		io->send_pt(&C);
 		io->flush();
 
-		BigInt * r = new BigInt[length];
-		BigInt * rc = new BigInt[length];
-		Point * pk0 = new Point[length], 
-				pk1,
-				*gr = new Point[length], 
-				*Cr = new Point[length];
+		std::unique_ptr<BigInt[]> r(new BigInt[length]);
+		std::unique_ptr<BigInt[]> rc(new BigInt[length]);
+		std::unique_ptr<Point[]> pk0(new Point[length]); 
+		Point pk1;
+		std::unique_ptr<Point[]> gr(new Point[length]); 
+		std::unique_ptr<Point[]> Cr(new Point[length]);
 		for(int64_t i = 0; i < length; ++i) {
 			G->get_rand_bn(r[i]);
 			gr[i] = G->mul_gen(r[i]);
@@ -68,16 +67,11 @@ class OTNP: public OT<IO> { public:
 			io->send_data(m, 2*sizeof(block));
 		}
 
-		delete[] r;
-		delete[] gr;
-		delete[] Cr;
-		delete[] rc;
-		delete[] pk0;
 	}
 
 	void recv(block* data, const bool* b, int64_t length) override {
-		BigInt * k = new BigInt[length];
-		Point * gr = new Point[length]; 
+		std::unique_ptr<BigInt[]> k(new BigInt[length]);
+		std::unique_ptr<Point[]> gr(new Point[length]); 
 		Point pk[2];
 		block m[2];
 		Point C;
@@ -108,8 +102,6 @@ class OTNP: public OT<IO> { public:
 			io->recv_data(m, 2*sizeof(block));
 			data[i] = m[ind] ^ Hash::KDF(gr[i]);
 		}
-		delete[] k;
-		delete[] gr;
 	}
 
 };

@@ -8,12 +8,14 @@ class BoolIO: public IOChannel<BoolIO<IO>> { public:
 	IO * io;
 	Hash hash;//modelled as RO
 	bool * buf;
+    std::unique_ptr<bool> p_buf;
 	int ptr;
 	bool sender;
 	vector<unsigned char> tmp_arr;
 	using IOChannel<BoolIO<IO>>::counter;
 	BoolIO(IO * io, int sender) : io(io), sender(sender) {
 		buf = new bool[NETWORK_BUFFER_SIZE2];
+        p_buf.reset(buf);
 		if(sender)
 			ptr = 0;
 		else ptr = NETWORK_BUFFER_SIZE2;
@@ -25,8 +27,6 @@ class BoolIO: public IOChannel<BoolIO<IO>> { public:
 
 	~BoolIO() {
 		SAFE_FINALIZE_IO();
-
-		delete[] buf;
 	}
 	void flush() {
 		if(sender) {

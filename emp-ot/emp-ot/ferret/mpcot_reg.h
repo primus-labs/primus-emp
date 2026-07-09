@@ -61,42 +61,53 @@ public:
 
 	// MPFSS F_2k
 	void mpcot(block * sparse_vector, OTPre<IO> * ot, block *pre_cot_data) {
-		if(party == BOB) consist_check_chi_alpha = new block[item_n];
+        std::unique_ptr<block[]> p_chi_alpha;
+        std::unique_ptr<block[]> p_VW;
+		if(party == BOB) {
+            consist_check_chi_alpha = new block[item_n];
+            p_chi_alpha.reset(consist_check_chi_alpha);
+        }
 		consist_check_VW = new block[item_n];
+        p_VW.reset(consist_check_VW);
+
+
+        vector<std::shared_ptr<SPCOT_Sender<IO>>> p_senders;
+        vector<std::shared_ptr<SPCOT_Recver<IO>>> p_recvers;
 
 		vector<SPCOT_Sender<IO>*> senders;
 		vector<SPCOT_Recver<IO>*> recvers;
 
 		if(party == ALICE) {
-			mpcot_init_sender(senders, ot);
+			mpcot_init_sender(p_senders, ot);
+            for (auto& s: p_senders) {
+                senders.push_back(s.get());
+            }
 			exec_parallel_sender(senders, ot, sparse_vector);
 		} else {
-			mpcot_init_recver(recvers, ot);
+			mpcot_init_recver(p_recvers, ot);
+            for (auto& r: p_recvers) {
+                recvers.push_back(r.get());
+            }
 			exec_parallel_recver(recvers, ot, sparse_vector);
 		}
 
 		if(is_malicious)
 			consistency_check_f2k(pre_cot_data, tree_n);
 
-		for (auto p : senders) delete p;
-		for (auto p : recvers) delete p;
-
-		if(party == BOB) delete[] consist_check_chi_alpha;
-		delete[] consist_check_VW;
 	}
 
-	void mpcot_init_sender(vector<SPCOT_Sender<IO>*> &senders, OTPre<IO> *ot) {
+	void mpcot_init_sender(vector<std::shared_ptr<SPCOT_Sender<IO>>> &senders, OTPre<IO> *ot) {
 		for(int i = 0; i < tree_n; ++i) {
-			senders.push_back(new SPCOT_Sender<IO>(netio, tree_height));
+			senders.push_back(std::make_shared<SPCOT_Sender<IO>>(netio, tree_height));
 			ot->choices_sender();
 		}
 		netio->flush();
 		ot->reset();
 	}
 
-	void mpcot_init_recver(vector<SPCOT_Recver<IO>*> &recvers, OTPre<IO> *ot) {
+	void mpcot_init_recver(vector<std::shared_ptr<SPCOT_Recver<IO>>> &recvers, OTPre<IO> *ot) {
 		for(int i = 0; i < tree_n; ++i) {
-			recvers.push_back(new SPCOT_Recver<IO>(netio, tree_height));
+			recvers.push_back(std::make_shared<SPCOT_Recver<IO>>(netio, tree_height));
 			ot->choices_recver(recvers[i]->b);
 			item_pos_recver[i] = recvers[i]->get_index();
 		}

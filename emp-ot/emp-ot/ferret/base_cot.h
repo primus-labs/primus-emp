@@ -9,20 +9,19 @@ class BaseCot { public:
 	block one, minusone;
 	block ot_delta;
 	IO *io;
-	IKNP<IO> *iknp;
+	std::unique_ptr<IKNP<IO>> iknp;
 	bool malicious = false;
 
 	BaseCot(int party, IO *io, bool malicious = false) {
 		this->party = party;
 		this->io = io;
 		this->malicious = malicious;
-		iknp = new IKNP<IO>(io, malicious);
+		iknp.reset(new IKNP<IO>(io, malicious));
 		minusone = makeBlock(0xFFFFFFFFFFFFFFFFLL,0xFFFFFFFFFFFFFFFELL);
 		one = makeBlock(0x0LL, 0x1LL);
 	}
 	
 	~BaseCot() {
-		delete iknp;
 	}
 
 	void cot_gen_pre(block deltain) {
@@ -59,6 +58,7 @@ class BaseCot { public:
 		} else {
 			PRG prg;
 			bool *pre_bool_ini = new bool[size];
+            std::unique_ptr<bool[]> p_pre_bool_ini(pre_bool_ini);
 			prg.random_bool(pre_bool_ini, size);
 			iknp->recv_cot(ot_data, pre_bool_ini, size);
 			block ch[2];
@@ -67,12 +67,12 @@ class BaseCot { public:
 			for(int64_t i = 0; i < size; ++i)
 				ot_data[i] = 
 						(ot_data[i] & minusone) ^ ch[pre_bool_ini[i]];
-			delete[] pre_bool_ini;
 		}
 	}
 
 	void cot_gen(OTPre<IO> *pre_ot, int64_t size) {
 		block *ot_data = new block[size];
+        std::unique_ptr<block[]> p_ot_data(ot_data);
 		if (this->party == ALICE) {
 			iknp->send_cot(ot_data, size);
 			io->flush();
@@ -82,6 +82,7 @@ class BaseCot { public:
 		} else {
 			PRG prg;
 			bool *pre_bool_ini = new bool[size];
+            std::unique_ptr<bool[]> p_pre_bool_ini(pre_bool_ini);
 			prg.random_bool(pre_bool_ini, size);
 			iknp->recv_cot(ot_data, pre_bool_ini, size);
 			block ch[2];
@@ -91,9 +92,7 @@ class BaseCot { public:
 				ot_data[i] = 
 						(ot_data[i] & minusone) ^ ch[pre_bool_ini[i]];
 			pre_ot->recv_pre(ot_data, pre_bool_ini);
-			delete[] pre_bool_ini;
 		}
-		delete[] ot_data;
 	}
 
 	// debug
@@ -105,6 +104,7 @@ class BaseCot { public:
 			return true;
 		} else {
 			block * tmp = new block[len];
+            std::unique_ptr<block[]> p_tmp(tmp);
 			block ch[2];
 			io->recv_block(ch+1, 1);
 			ch[0] = zero_block;
@@ -112,7 +112,6 @@ class BaseCot { public:
 			for(int64_t i = 0; i < len; ++i)
 				tmp[i] = tmp[i] ^ ch[getLSB(data[i])];
 			bool res = cmpBlock(tmp, data, len);
-			delete[] tmp;
 			return res;
 		}
 	}

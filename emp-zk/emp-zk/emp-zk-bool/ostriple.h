@@ -16,8 +16,11 @@ public:
 	// managing buffers storing COTs
 	int check_cnt = 0;
 	block* andgate_out_buffer = nullptr;
+    std::unique_ptr<block[]> p_andgate_out_buffer;
 	block* andgate_left_buffer = nullptr;
+    std::unique_ptr<block[]> p_andgate_left_buffer;
 	block* andgate_right_buffer = nullptr;
+    std::unique_ptr<block[]> p_andgate_right_buffer;
 
 	GaloisFieldPacking pack;
 	int64_t CHECK_SZ = 1024*1024;
@@ -28,8 +31,11 @@ public:
 	IO **ios;
 	PRG prg;
 	FerretCOT<IO> *ferret = nullptr;
+    std::unique_ptr<FerretCOT<IO>> p_ferret;
 	TripleAuth<IO> *auth_helper;
+    std::unique_ptr<TripleAuth<IO>> p_auth_helper;
 	ThreadPool *pool = nullptr;
+    std::unique_ptr<ThreadPool> p_pool;
 	void * ferret_state = nullptr;
 	
 	OSTriple (int party, int threads, IO **ios, void * state = nullptr, const PrimalLPNParameter* lpn_param = nullptr) {
@@ -49,14 +55,19 @@ public:
 			ferret = new FerretCOT<IO>(3-party, threads, ios, true, false);
 			ferret->disassemble_state(ferret_state, 10400000);
 		}
+        p_ferret.reset(ferret);
 		this->delta = ferret->Delta;
 		io = ios[0];
 		this->ios = ios;
 		pool = new ThreadPool(threads);
+        p_pool.reset(pool);
 
 		andgate_out_buffer = new block[CHECK_SZ];
+        p_andgate_out_buffer.reset(andgate_out_buffer);
 		andgate_left_buffer = new block[CHECK_SZ];
+        p_andgate_left_buffer.reset(andgate_left_buffer);
 		andgate_right_buffer = new block[CHECK_SZ];
+        p_andgate_right_buffer.reset(andgate_right_buffer);
 
 		block tmp;
 		safeInitialize([this, &tmp]() {
@@ -70,6 +81,7 @@ public:
 		choice2[1] = one;
 
 		auth_helper = new TripleAuth<IO>(party, io);
+        p_auth_helper.reset(auth_helper);
 		if(party == BOB) auth_helper->set_delta(this->delta);
 	}	
 
@@ -87,13 +99,6 @@ public:
 
 	~OSTriple () {
 		SAFE_FINALIZE_IO();
-
-		delete ferret;
-		delete[] andgate_out_buffer;
-		delete[] andgate_left_buffer;
-		delete[] andgate_right_buffer;
-		delete auth_helper;
-		delete pool;
 	}
 
 	uint64_t communication() {
@@ -163,12 +168,14 @@ public:
 
 		int share_seed_n = threads;
 		block *share_seed = new block[share_seed_n];
+        std::unique_ptr<block[]> p_share_seed(share_seed);
 		PRG(&seed).random_block(share_seed, share_seed_n);
 
 		uint32_t task_base = check_cnt / threads;
 		uint32_t leftover = task_base + (check_cnt % task_base);
 		uint32_t start = 0;
 		block *sum = new block[2*threads];
+        std::unique_ptr<block[]> p_sum(sum);
 		for(int i = 0; i < threads; ++i) {
 			uint32_t task_n = task_base;
 			if (i == threads - 1) {
@@ -221,8 +228,6 @@ public:
 				CheatRecord::put("emp_zk_bool AND batch check");
 		}
 		io->flush();
-		delete[] share_seed;
-		delete[] sum;
 	}
 
 	void andgate_correctness_check(block *ret, int thr_i, uint32_t start, uint32_t task_n, block chi_seed) {
@@ -257,13 +262,13 @@ public:
 		}
 
 		block *chi = new block[task_n];
+        std::unique_ptr<block[]> p_chi(chi);
 		uni_hash_coeff_gen(chi, chi_seed, task_n);
 		if(party == ALICE) {
 			vector_inn_prdt_sum_red(ret+2*thr_i, chi, left+start, task_n);
 			vector_inn_prdt_sum_red(ret+2*thr_i+1, chi, right+start, task_n);
 		} else vector_inn_prdt_sum_red(ret+thr_i, chi, left+start, task_n);
 
-		delete[] chi;
 	}
 
 	/*
@@ -310,6 +315,7 @@ public:
 			tio->send_data(in, len*sizeof(bool));
 		} else {
 			block* auth_recv = new block[len];
+            std::unique_ptr<block[]> p_auth_recv(auth_recv);
 			tio->recv_data(auth_recv, len*sizeof(block));
 			tio->recv_data(in, len*sizeof(bool));
 			for(int i = 0; i < len; ++i) {
@@ -318,7 +324,6 @@ public:
 				block mac = auth[i] ^ choice[in[i]];
 				if(!cmpBlock(&mac, &auth_recv[i], 1)) error ("check2");
 			}
-			delete[] auth_recv;
 		}
 	}
 	void check_compute_and(block* a, block *b, block *c, int len, IO *tio) {
@@ -328,6 +333,7 @@ public:
 			tio->send_data(c, len*sizeof(block));
 		} else {
 			block* recv = new block[3*len];
+            std::unique_ptr<block[]> p_recv(recv);
 			tio->recv_data(recv, len*sizeof(block));
 			tio->recv_data(recv+len, len*sizeof(block));
 			tio->recv_data(recv+2*len, len*sizeof(block));
@@ -348,7 +354,6 @@ public:
 				if(!cmpBlock(v+1, recv+len+i, 1)) error("check5");
 				if(!cmpBlock(v+2, recv+2*len+i, 1)) error("check6");
 			}
-			delete[] recv;
 		}
 	}
 

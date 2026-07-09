@@ -44,20 +44,22 @@ class ZKVerifier: public ProtocolExecution {
 public:
 	IO* io = nullptr;
 	OSTriple<IO>* ostriple = nullptr;
+    std::unique_ptr<OSTriple<IO>> p_ostriple;
 	PolyProof<IO> *polyproof = nullptr;
+    std::unique_ptr<PolyProof<IO>> p_polyproof;
 	ZKBoolCircExecVer<IO> *eva = nullptr;
 	ZKVerifier(IO **ios, int threads, ZKBoolCircExecVer<IO> *t, void * state, const PrimalLPNParameter* lpn_param = &ferret_b10): ProtocolExecution(BOB) {
 		this->io = ios[0];
 		ostriple = new OSTriple<IO>(BOB, threads, ios, state, lpn_param);
+        p_ostriple.reset(ostriple);
 		polyproof = new PolyProof<IO>(BOB, ios[0], ostriple->ferret);
+        p_polyproof.reset(polyproof);
 		polyproof->delta = ostriple->delta;
 		t->template set_ostriple<IO>(ostriple);
 		t->polyproof = this->polyproof;
 		this->eva = t;
 	}
 	~ZKVerifier() {
-		delete polyproof;
-		delete ostriple;
 	}
 
 	/* 
