@@ -59,15 +59,22 @@ private:
 	block one;
 
 	block * ot_pre_data = nullptr;
+    std::unique_ptr<block[]> p_ot_pre_data;
 	block * ot_data = nullptr;
+    std::unique_ptr<block[]> p_ot_data;
 
 	std::string pre_ot_filename;
 
 	BaseCot<T> *base_cot = nullptr;
+    std::unique_ptr<BaseCot<T>> p_base_cot;
 	OTPre<T> *pre_ot = nullptr;
+    std::unique_ptr<OTPre<T>> p_pre_ot;
 	ThreadPool *pool = nullptr;
+    std::unique_ptr<ThreadPool> p_pool;
 	MpcotReg<T> *mpcot = nullptr;
+    std::unique_ptr<MpcotReg<T>> p_mpcot;
 	LpnF2<T, 10> *lpn_f2 = nullptr;
+    std::unique_ptr<LpnF2<T, 10>> p_lpn_f2; 
 
 	
 	void online_sender(block *data, int64_t length);

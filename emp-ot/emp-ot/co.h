@@ -14,27 +14,26 @@ template<typename IO>
 class OTCO: public OT<IO> { public:
 	IO* io;
 	Group *G = nullptr;
-	bool delete_G = true;
+    std::unique_ptr<Group> p_G;
 	OTCO(IO* io, Group * _G = nullptr) {
 		this->io = io;
-		if (_G == nullptr)
+		if (_G == nullptr) {
 			G = new Group();
+            p_G.reset(G);
+        }
 		else {
 			G = _G;
-			delete_G = false;
 		}
 	}
 	~OTCO() {
-		if (delete_G)
-			delete G;
 	}
 
 	void send(const block* data0, const block* data1, int64_t length) override {
 		BigInt a;
 		Point A, AaInv;
 		block res[2];
-		Point * B = new Point[length];
-		Point * BA = new Point[length];
+		std::unique_ptr<Point[]> B(new Point[length]);
+		std::unique_ptr<Point[]>  BA(new Point[length]);
 
 		G->get_rand_bn(a);
 		A = G->mul_gen(a);
@@ -55,15 +54,13 @@ class OTCO: public OT<IO> { public:
 			io->send_data(res, 2*sizeof(block));
 		}
 
-		delete[] BA;
-		delete[] B;
 	}
 
 	void recv(block* data, const bool* b, int64_t length) override {
-		BigInt * bb = new BigInt[length];
-		Point * B = new Point[length],
-				* As = new Point[length],
-				A;
+		std::unique_ptr<BigInt[]> bb(new BigInt[length]);
+		std::unique_ptr<Point[]> B(new Point[length]);
+		std::unique_ptr<Point[]> As(new Point[length]);
+		Point A;
 
 		for(int64_t i = 0; i < length; ++i)
 			G->get_rand_bn(bb[i]);
@@ -91,9 +88,6 @@ class OTCO: public OT<IO> { public:
 				data[i] = data[i] ^ res[0];
 		}
 		
-		delete[] bb;
-		delete[] B;
-		delete[] As;
 	}
 };
 
