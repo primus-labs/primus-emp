@@ -5,6 +5,7 @@
 #include "emp-tool/execution/protocol_execution.h"
 #include "emp-tool/utils/block.h"
 #include "emp-tool/circuits/bit.h"
+#include "emp-tool/utils/win_compat.h"   // fmemopen shim on Windows (no-op elsewhere)
 #include <stdio.h>
 #include <fstream>
 

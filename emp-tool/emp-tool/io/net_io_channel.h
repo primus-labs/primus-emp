@@ -10,12 +10,7 @@
 using std::string;
 
 
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <netinet/tcp.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
+#include "emp-tool/utils/win_compat.h"
 
 namespace emp {
 
@@ -111,12 +106,14 @@ class NetIO: public IOChannel<NetIO> { public:
 
 	void set_nodelay() {
 		const int one=1;
-		setsockopt(consocket,IPPROTO_TCP,TCP_NODELAY,&one,sizeof(one));
+		// cast to const char* so it also compiles under Winsock (setsockopt takes
+		// const char* on Windows vs const void* on POSIX); no-op on POSIX.
+		setsockopt(consocket,IPPROTO_TCP,TCP_NODELAY,(const char*)&one,sizeof(one));
 	}
 
 	void set_delay() {
 		const int zero = 0;
-		setsockopt(consocket,IPPROTO_TCP,TCP_NODELAY,&zero,sizeof(zero));
+		setsockopt(consocket,IPPROTO_TCP,TCP_NODELAY,(const char*)&zero,sizeof(zero));
 	}
 
 	void flush() {

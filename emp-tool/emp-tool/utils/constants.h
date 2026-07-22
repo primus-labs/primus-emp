@@ -1,5 +1,6 @@
 #ifndef EMP_CONFIG_H__
 #define EMP_CONFIG_H__
+#include <cstdint>
 namespace emp {
 const static int AES_BATCH_SIZE = 8;
 const static int HASH_BUFFER_SIZE = 1024*8;

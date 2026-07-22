@@ -59,6 +59,14 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread -Wall -funroll-loops -Wno-ignored-a
 message("${Blue}-- Platform: ${CMAKE_SYSTEM_PROCESSOR}${ColourReset}")
 IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "(aarch64)|(arm64)")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=armv8-a+simd+crypto+crc")
+ELSEIF(WIN32)
+# Windows (MinGW-w64): pin a distributable ISA baseline instead of -march=native,
+# so the artifact runs on any x86-64-v2-class CPU (AES-NI, SSE4.2, PCLMUL).
+# NOTE: -mrdseed is intentionally omitted. emp's PRG only uses _rdseed64_step under
+# the ENABLE_RDSEED macro, which the build never defines (enable_rdseed.cmake defines
+# the differently-named EMP_ENABLE_RDSEED), so PRG always seeds via std::random_device.
+# Keeping RDSEED out of the baseline avoids implying a dependency on that instruction.
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -maes -msse4.2 -mpclmul")
 ELSE(${CMAKE_SYSTEM_PROCESSOR} MATCHES "(aarch64)|(arm64)")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native -maes -mrdseed")
 ENDIF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "(aarch64)|(arm64)" )

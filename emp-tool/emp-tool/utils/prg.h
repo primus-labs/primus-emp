@@ -26,7 +26,12 @@ class PRG { public:
 			block v;
 #ifndef ENABLE_RDSEED
 			uint32_t * data = (uint32_t *)(&v);
+#ifdef _WIN32
+			// Windows has no /dev/urandom; the default token uses the OS CSPRNG (rand_s).
+			std::random_device rand_div;
+#else
 			std::random_device rand_div("/dev/urandom");
+#endif
 			for (size_t i = 0; i < sizeof(block) / sizeof(uint32_t); ++i)
 				data[i] = rand_div();
 #else

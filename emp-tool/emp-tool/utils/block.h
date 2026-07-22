@@ -20,6 +20,7 @@ inline __m128i _mm_aesdeclast_si128 (__m128i a, __m128i RoundKey)
 #endif
 
 #include <assert.h>
+#include <cstdint>
 #include <cstring>
 #include <iostream>
 #include <iomanip>
