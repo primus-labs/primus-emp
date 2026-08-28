@@ -27,9 +27,9 @@ public:
 
 	BaseSVoleF2k (int party, IO **ios, FerretCOT<IO> *ferret) :
 		party(party), ios(ios), ferret(ferret) {
-		FERRET_BUFFER_MEM_SZ = ferret_b13.n;
-		FERRET_BUFFER_SZ = ferret_b13.buf_sz();
-		F2K_BUFFER_SZ = ferret_b13.buf_sz()/128;
+		FERRET_BUFFER_MEM_SZ = ferret->param.n;
+		FERRET_BUFFER_SZ = ferret->param.buf_sz();
+		F2K_BUFFER_SZ = ferret->param.buf_sz()/128;
 
 		if(party == BOB) delta = ferret->Delta;
 		io = ios[0];
