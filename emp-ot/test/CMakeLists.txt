@@ -18,4 +18,6 @@ endmacro()
 # Test cases
 add_test_case_with_run(ot)
 add_test_case_with_run(ferret)
+add_test_case(ferret_persistence)
+set_tests_properties(ferret_persistence PROPERTIES TIMEOUT 60 SKIP_RETURN_CODE 77)
 add_test_case(bench_lpn)
